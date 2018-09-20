@@ -13,7 +13,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
-
+        //Eeeeh
     }
 
     void Update()
@@ -29,7 +29,7 @@ public class PlayerMovement : MonoBehaviour
         {
             crouch = true;
         }
-        else if (Input.GetButtonDown("Up"))
+        else if (Input.GetButtonUp("Crouch"))
         {
             crouch = false;
         }
