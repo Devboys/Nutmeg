@@ -839,6 +839,7 @@ GameObject:
   - component: {fileID: 873021645}
   - component: {fileID: 873021643}
   - component: {fileID: 873021646}
+  - component: {fileID: 873021647}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -882,7 +883,7 @@ SpriteRenderer:
   m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300008, guid: 81fc6708c775e0a488072103095858ee, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 1
@@ -899,7 +900,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 873021640}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.02, y: 0.5, z: 0.17125678}
+  m_LocalPosition: {x: -0.025, y: 0.5, z: 0.17125678}
   m_LocalScale: {x: 2.0833335, y: 1.7857143, z: 1}
   m_Children:
   - {fileID: 223751438}
@@ -918,16 +919,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cd9df18dd14d8f4bb1df996a9368a67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_JumpForce: 800
+  m_JumpForce: 400
   m_CrouchSpeed: 0.36
   m_MovementSmoothing: 0.058
   m_AirControl: 1
   m_WhatIsGround:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 4294967295
   m_GroundCheck: {fileID: 223751438}
   m_CeilingCheck: {fileID: 18987190}
-  m_CrouchDisableCollider: {fileID: 873021644}
+  m_CrouchDisableCollider: {fileID: 873021647}
   OnLandEvent:
     m_PersistentCalls:
       m_Calls: []
@@ -950,7 +951,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.024511486, y: -0.06990344}
+  m_Offset: {x: -0.032691255, y: 0.032198608}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -961,7 +962,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.29733473, y: 0.5297407}
+  m_Size: {x: 0.4117402, y: 0.40767372}
   m_EdgeRadius: 0
 --- !u!50 &873021645
 Rigidbody2D:
@@ -996,6 +997,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   c: {fileID: 873021643}
   runSpeed: 40
+--- !u!58 &873021647
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 873021640}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.033001583, y: -0.09058652}
+  serializedVersion: 2
+  m_Radius: 0.20550017
 --- !u!1 &1284652934
 GameObject:
   m_ObjectHideFlags: 0
