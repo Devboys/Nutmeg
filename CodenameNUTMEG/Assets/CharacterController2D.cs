@@ -61,8 +61,16 @@ public class CharacterController2D : MonoBehaviour
 		}
 	}
 
+    void OnDrawGizmos()
+    {
+        Gizmos.color = new Color(0, 1, 0);
 
-	public void Move(float move, bool crouch, bool jump)
+        Vector3 groundCenter = m_GroundCheck.transform.position;
+        Gizmos.DrawWireSphere(groundCenter, k_GroundedRadius);
+    }
+
+
+    public void Move(float move, bool crouch, bool jump)
 	{
 		// If crouching, check to see if the character can stand up
 		if (!crouch)
@@ -70,9 +78,10 @@ public class CharacterController2D : MonoBehaviour
 			// If the character has a ceiling preventing them from standing up, keep them crouching
 			if (Physics2D.OverlapCircle(m_CeilingCheck.position, k_CeilingRadius, m_WhatIsGround))
 			{
-				//crouch = true; //TODO: uncomment this when crouch is needed and fix it.
-			}
-		}
+                //TODO: uncomment this when crouch is needed and fix it.
+                //crouch = true; 
+            }
+        }
 
 		//only control the player if grounded or airControl is turned on
 		if (m_Grounded || m_AirControl)
@@ -108,6 +117,7 @@ public class CharacterController2D : MonoBehaviour
 
 			// Move the character by finding the target velocity
 			Vector3 targetVelocity = new Vector2(move * 10f, m_Rigidbody2D.velocity.y);
+
 			// And then smoothing it out and applying it to the character
 			m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
 
