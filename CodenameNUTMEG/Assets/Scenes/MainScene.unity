@@ -252,6 +252,7 @@ GameObject:
   - component: {fileID: 519420032}
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
+  - component: {fileID: 519420030}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -266,6 +267,20 @@ AudioListener:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
+--- !u!114 &519420030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a44ef767d89730541a06660c75bd05ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 873021645}
+  focusAreaSize: {x: 3, y: 2}
+  verticalOffset: -1
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -715,7 +730,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cd9df18dd14d8f4bb1df996a9368a67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_JumpForce: 200
+  m_JumpForce: 400
   m_CrouchSpeed: 0.36
   m_MovementSmoothing: 0.058
   m_AirControl: 1
@@ -743,7 +758,7 @@ BoxCollider2D:
   m_GameObject: {fileID: 873021640}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 051d648e26a938f439f66cbc79b46613, type: 2}
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
@@ -792,7 +807,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   c: {fileID: 873021643}
-  runSpeed: 40
+  runSpeed: 20
 --- !u!58 &873021647
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -801,7 +816,7 @@ CircleCollider2D:
   m_GameObject: {fileID: 873021640}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 051d648e26a938f439f66cbc79b46613, type: 2}
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
