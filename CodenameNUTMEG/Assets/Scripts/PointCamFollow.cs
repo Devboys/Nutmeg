@@ -18,8 +18,6 @@ public class PointCamFollow : MonoBehaviour
     GameObject rightBound;
     GameObject leftBound;
 
-    readonly float boundThickness = 0.5f;
-
     bool blockedX;
     bool blockedY;
 
