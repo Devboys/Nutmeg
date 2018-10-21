@@ -60,19 +60,19 @@ public class PointCamFollow : MonoBehaviour
         collisionBound.transform.parent = focusArea.areaGameObject.transform;
 
         //calculate the current screen size.
-        Vector2 screenSize = getOrthographicCameraSize();
+        Vector2 screenSize = GetOrthographicCameraSize();
 
         //resize and position bound to fit the screen.
         collisionBound.transform.position = new Vector3(0, 0, 0);
         collisionBound.transform.localScale = new Vector3(screenSize.x * 2, screenSize.y * 2, collisionBound.transform.localScale.z);
 
         //delegate block responsibility
-        collisionBound.GetComponent<CamBoundTrigger>().blockDelegate = setBlocked;
+        collisionBound.GetComponent<CamBoundTrigger>().blockDelegate = SetBlocked;
 
 
     }
 
-    Vector2 getOrthographicCameraSize()
+    Vector2 GetOrthographicCameraSize()
     {
         float screenX = Camera.main.orthographicSize * Screen.width / Screen.height;
         float screenY = Camera.main.orthographicSize;
@@ -82,8 +82,8 @@ public class PointCamFollow : MonoBehaviour
     private class FocusArea
     {
         Vector3 center;
-        float speedX;
-        float speedY;
+        readonly float speedX;
+        readonly float speedY;
 
         public bool blockedX;
         public bool blockedY;
@@ -112,11 +112,11 @@ public class PointCamFollow : MonoBehaviour
         }
     }
 
-    public void setBlockedX(bool b, Collider2D source)
+    public void SetBlockedX(bool b, Collider2D source)
     {
         blockedX = b;
     }
-    public void setBlocked(bool b, Collider2D source)
+    public void SetBlocked(bool b, Collider2D source)
     {
 
         //get distance x and y.
