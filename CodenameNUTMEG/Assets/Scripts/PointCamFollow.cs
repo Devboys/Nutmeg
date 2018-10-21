@@ -85,9 +85,6 @@ public class PointCamFollow : MonoBehaviour
         readonly float speedX;
         readonly float speedY;
 
-        public bool blockedX;
-        public bool blockedY;
-
         public GameObject areaGameObject;
 
         public FocusArea(Vector3 areaCenter, float smoothSpeedX, float smoothSpeedY)
@@ -112,10 +109,6 @@ public class PointCamFollow : MonoBehaviour
         }
     }
 
-    public void SetBlockedX(bool b, Collider2D source)
-    {
-        blockedX = b;
-    }
     public void SetBlocked(bool b, Collider2D source)
     {
 
