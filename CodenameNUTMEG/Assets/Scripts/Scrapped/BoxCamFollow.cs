@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraFollow : MonoBehaviour {
+public class BoxCamFollow : MonoBehaviour {
 
     public Rigidbody2D target;
     public Vector2 focusAreaSize;
@@ -19,7 +19,6 @@ public class CameraFollow : MonoBehaviour {
     void LateUpdate()
     {
         focusArea.Update(target.GetComponent<Collider2D>().bounds);
-
         Vector2 focusPosition = focusArea.center + Vector2.up * verticalOffset;
 
         transform.position = (Vector3)focusPosition + Vector3.forward * -10;
