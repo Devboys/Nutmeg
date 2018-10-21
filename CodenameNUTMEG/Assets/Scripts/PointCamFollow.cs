@@ -13,10 +13,7 @@ public class PointCamFollow : MonoBehaviour
 
     FocusArea focusArea;
 
-    GameObject upperBound;
-    GameObject lowerBound;
-    GameObject rightBound;
-    GameObject leftBound;
+    GameObject collisionBound;
 
     bool blockedX;
     bool blockedY;
@@ -24,20 +21,20 @@ public class PointCamFollow : MonoBehaviour
     void Start()
     {
         //create camera focus area
-        focusArea = new FocusArea(target.GetComponent<Collider2D>().bounds.center, smoothSpeedX, smoothSpeedY, cameraBoundsOn);
+        focusArea = new FocusArea(target.GetComponent<Collider2D>().bounds.center, smoothSpeedX, smoothSpeedY);
 
         //create bounding colliders(used for limiting camera movement). Bounds are tied to the focusarea.
-        RespawnBounds();
+        RespawnBound();
     }
 
     void FixedUpdate()
     {
         focusArea.Update(target.GetComponent<Collider2D>().bounds.center);
-        Vector3 focusPosition = focusArea.areaObject.transform.position;
+        Vector3 focusPosition = focusArea.areaGameObject.transform.position;
 
-        if (!blockedX)
+        if (!blockedX || !cameraBoundsOn)
             transform.position = new Vector3(focusPosition.x, transform.position.y, -10);
-        if (!blockedY)
+        if (!blockedY || !cameraBoundsOn)
             transform.position = new Vector3(transform.position.x, focusPosition.y, -10);
     }
 
@@ -46,31 +43,31 @@ public class PointCamFollow : MonoBehaviour
         if (focusArea != null)
         {
             Gizmos.color = new Color(1, 0, 0);
-            Gizmos.DrawWireSphere(focusArea.areaObject.transform.position, gizmoRadius);
+            Gizmos.DrawWireSphere(focusArea.areaGameObject.transform.position, gizmoRadius);
         }
     }
 
-    void RespawnBounds()
+    void RespawnBound()
     {
         //destroy current bound if it exist.
-        if (upperBound != null)
-            Destroy(upperBound);
+        if (collisionBound != null)
+            Destroy(collisionBound);
 
         //Create bounding camera collider.
-        upperBound = Instantiate(boundPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+        collisionBound = Instantiate(boundPrefab, new Vector3(0, 0, 0), Quaternion.identity);
 
         //make bound child of the focusarea to make its position relative to this at all times.
-        upperBound.transform.parent = focusArea.areaObject.transform;
+        collisionBound.transform.parent = focusArea.areaGameObject.transform;
 
         //calculate the current screen size.
         Vector2 screenSize = getOrthographicCameraSize();
 
         //resize and position bound to fit the screen.
-        upperBound.transform.position = new Vector3(0, 0, 0);
-        upperBound.transform.localScale = new Vector3(screenSize.x * 2, screenSize.y * 2, upperBound.transform.localScale.z);
+        collisionBound.transform.position = new Vector3(0, 0, 0);
+        collisionBound.transform.localScale = new Vector3(screenSize.x * 2, screenSize.y * 2, collisionBound.transform.localScale.z);
 
         //delegate block responsibility
-        upperBound.GetComponent<CamBoundTrigger>().blockDelegate = setBlocked;
+        collisionBound.GetComponent<CamBoundTrigger>().blockDelegate = setBlocked;
 
 
     }
@@ -90,21 +87,16 @@ public class PointCamFollow : MonoBehaviour
 
         public bool blockedX;
         public bool blockedY;
-        public bool boundsOn;
 
-        public GameObject areaObject;
+        public GameObject areaGameObject;
 
-        public FocusArea(Vector3 areaCenter, float smoothSpeedX, float smoothSpeedY, bool _boundsOn)
+        public FocusArea(Vector3 areaCenter, float smoothSpeedX, float smoothSpeedY)
         {
             speedX = smoothSpeedX;
             speedY = smoothSpeedY;
             center = areaCenter;
 
-            blockedX = false;
-            blockedY = false;
-            boundsOn = _boundsOn;
-
-            areaObject = new GameObject();
+            areaGameObject = new GameObject();
         }
 
         public void Update(Vector3 newCenter)
@@ -116,7 +108,7 @@ public class PointCamFollow : MonoBehaviour
             Vector3 velocity = new Vector3(velocityX, velocityY, 0);
             center += velocity;
 
-            areaObject.transform.position = center;
+            areaGameObject.transform.position = center;
         }
     }
 
