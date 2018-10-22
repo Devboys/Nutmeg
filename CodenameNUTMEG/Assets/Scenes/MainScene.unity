@@ -545,7 +545,6 @@ GameObject:
   - component: {fileID: 873021647}
   - component: {fileID: 873021644}
   - component: {fileID: 873021643}
-  - component: {fileID: 873021646}
   - component: {fileID: 873021641}
   m_Layer: 0
   m_Name: Player
@@ -626,7 +625,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cd9df18dd14d8f4bb1df996a9368a67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_JumpForce: 300
+  m_JumpForce: 10
   m_CrouchSpeed: 0.36
   m_MovementSmoothing: 0.058
   m_AirControl: 1
@@ -636,6 +635,7 @@ MonoBehaviour:
   m_GroundCheck: {fileID: 223751438}
   m_CeilingCheck: {fileID: 1866317068}
   m_CrouchDisableCollider: {fileID: 873021647}
+  jumpTimeDuration: 0.2
   OnLandEvent:
     m_PersistentCalls:
       m_Calls: []
@@ -646,6 +646,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: CharacterController2D+BoolEvent, Assembly-CSharp, Version=0.0.0.0,
       Culture=neutral, PublicKeyToken=null
+  runSpeed: 20
 --- !u!61 &873021644
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -685,25 +686,12 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 5
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
---- !u!114 &873021646
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 873021640}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41c708c35e1f7d74c9ca26b846585571, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  c: {fileID: 873021643}
-  runSpeed: 20
 --- !u!58 &873021647
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -774,6 +762,10 @@ Prefab:
     - target: {fileID: 1361345535305250, guid: fdacae7ad5475284fb57bad9ce7881c6, type: 2}
       propertyPath: m_Name
       value: Platform (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1361345535305250, guid: fdacae7ad5475284fb57bad9ce7881c6, type: 2}
+      propertyPath: m_Icon
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fdacae7ad5475284fb57bad9ce7881c6, type: 2}
@@ -1023,6 +1015,10 @@ Prefab:
     - target: {fileID: 1615381356255812, guid: db5fc9f5b82ed7647a0e45c6fac8221d, type: 2}
       propertyPath: m_Name
       value: CamBlockD
+      objectReference: {fileID: 0}
+    - target: {fileID: 4428272361155964, guid: db5fc9f5b82ed7647a0e45c6fac8221d, type: 2}
+      propertyPath: m_LocalScale.x
+      value: 24.3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: db5fc9f5b82ed7647a0e45c6fac8221d, type: 2}
@@ -1354,6 +1350,10 @@ Prefab:
     - target: {fileID: 1615381356255812, guid: db5fc9f5b82ed7647a0e45c6fac8221d, type: 2}
       propertyPath: m_Name
       value: CamBlockR
+      objectReference: {fileID: 0}
+    - target: {fileID: 4428272361155964, guid: db5fc9f5b82ed7647a0e45c6fac8221d, type: 2}
+      propertyPath: m_LocalScale.y
+      value: 12.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: db5fc9f5b82ed7647a0e45c6fac8221d, type: 2}

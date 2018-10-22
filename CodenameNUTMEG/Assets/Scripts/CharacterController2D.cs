@@ -13,7 +13,10 @@ public class CharacterController2D : MonoBehaviour
 	[SerializeField] private Transform m_CeilingCheck;							// A position marking where to check for ceilings
 	[SerializeField] private Collider2D m_CrouchDisableCollider;				// A collider that will be disabled when crouching
 
-	const float k_GroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
+    [SerializeField] private float jumpTimeDuration;
+
+
+    const float k_GroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
 	private bool m_Grounded;            // Whether or not the player is grounded.
 	const float k_CeilingRadius = .2f; // Radius of the overlap circle to determine if the player can stand up
 	private Rigidbody2D m_Rigidbody2D;
@@ -31,7 +34,43 @@ public class CharacterController2D : MonoBehaviour
 	public BoolEvent OnCrouchEvent;
 	private bool m_wasCrouching = false;
 
-	private void Awake()
+
+    [SerializeField]private float runSpeed = 20f;
+    float horizontalMove = 0f;
+    bool jumpStart = false;
+    bool inJump = false;
+    float jumpCounter;
+    bool crouch = false;
+
+    private void Update()
+    {
+        horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
+
+        if (Input.GetButtonDown("Jump"))
+            jumpStart = true;
+        else if (Input.GetButton("Jump"))
+            inJump = true;
+        else if (Input.GetButtonUp("Jump"))
+        {
+            inJump = false;
+            jumpCounter = 0;
+        }
+
+        if (Input.GetButtonDown("Crouch"))
+            crouch = true;
+        else if (Input.GetButtonUp("Crouch"))
+            crouch = false;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.contacts[0].point.y > this.GetComponent<BoxCollider2D>().bounds.center.y)
+        {
+            jumpCounter = 0;
+        }
+    }
+
+    private void Awake()
 	{
 		m_Rigidbody2D = GetComponent<Rigidbody2D>();
 
@@ -59,7 +98,11 @@ public class CharacterController2D : MonoBehaviour
 					OnLandEvent.Invoke();
 			}
 		}
-	}
+
+        Move(horizontalMove * Time.fixedDeltaTime, crouch, jumpStart);
+        jumpStart = false;
+        inJump = false;
+    }
 
     void OnDrawGizmos()
     {
@@ -68,7 +111,6 @@ public class CharacterController2D : MonoBehaviour
         Vector3 groundCenter = m_GroundCheck.transform.position;
         Gizmos.DrawWireSphere(groundCenter, k_GroundedRadius);
     }
-
 
     public void Move(float move, bool crouch, bool jump)
 	{
@@ -123,24 +165,25 @@ public class CharacterController2D : MonoBehaviour
 
 			// If the input is moving the player right and the player is facing left...
 			if (move > 0 && !m_FacingRight)
-			{
-				// ... flip the player.
 				Flip();
-			}
+
 			// Otherwise if the input is moving the player left and the player is facing right...
 			else if (move < 0 && m_FacingRight)
-			{
-				// ... flip the player.
 				Flip();
-			}
 		}
+
         // If the player should jump...
         if (m_Grounded && jump)
 		{
-			// Add a vertical force to the player.
 			m_Grounded = false;
-			m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
-		}
+            m_Rigidbody2D.velocity = new Vector3(m_Rigidbody2D.velocity.x, m_JumpForce, 0);
+            jumpCounter = jumpTimeDuration;
+        }
+        else if (inJump && jumpCounter > 0)
+        {
+            m_Rigidbody2D.velocity = new Vector3(m_Rigidbody2D.velocity.x, m_JumpForce, 0);
+            jumpCounter -= Time.deltaTime;
+        }
 	}
 
 
