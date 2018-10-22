@@ -94,6 +94,7 @@ public class PointCamFollow : MonoBehaviour
             center = areaCenter;
 
             areaGameObject = new GameObject();
+            areaGameObject.name = "CamFocusArea";
         }
 
         public void Update(Vector3 newCenter)
