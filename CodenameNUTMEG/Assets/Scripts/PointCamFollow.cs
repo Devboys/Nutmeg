@@ -67,9 +67,8 @@ public class PointCamFollow : MonoBehaviour
         collisionBound.transform.localScale = new Vector3(screenSize.x * 2, screenSize.y * 2, collisionBound.transform.localScale.z);
 
         //delegate block responsibility
-        collisionBound.GetComponent<CamBoundTrigger>().blockDelegate = SetBlocked;
-
-
+        collisionBound.GetComponent<CamBoundTrigger>().XblockDelegate = SetBlockedX;
+        collisionBound.GetComponent<CamBoundTrigger>().YblockDelegate = SetBlockedY;
     }
 
     Vector2 GetOrthographicCameraSize()
@@ -110,15 +109,13 @@ public class PointCamFollow : MonoBehaviour
         }
     }
 
-    public void SetBlocked(bool b, Collider2D c)
-    {
-        //get distance x and y.
-		float distX = Mathf.Abs(this.transform.position.x - c.transform.position.x);
-		float distY = Mathf.Abs(this.transform.position.y - c.transform.position.y);
 
-        if (distX >= GetOrthographicCameraSize().x)
-            blockedX = b;
-        else if (distY >= GetOrthographicCameraSize().y)
-            blockedY = b;
+    public void SetBlockedY(bool b)
+    {
+        blockedY = b;
+    }
+    public void SetBlockedX(bool b)
+    {
+        blockedX = b;
     }
 }

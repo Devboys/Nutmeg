@@ -48,14 +48,6 @@ public class CharacterController2D : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.contacts[0].point.y > this.GetComponent<BoxCollider2D>().bounds.center.y)
-        {
-            jumpCounter = 0;
-        }
-    }
-
     private void Awake()
 	{
 		m_Rigidbody2D = GetComponent<Rigidbody2D>();
@@ -116,6 +108,11 @@ public class CharacterController2D : MonoBehaviour
 			else if (move < 0 && m_FacingRight)
 				Flip();
 		}
+
+        if(m_Rigidbody2D.velocity.y == 0)
+        {
+            jumpCounter = 0;
+        }
 
         // If the player should jump...
         if (m_Grounded && jump)
