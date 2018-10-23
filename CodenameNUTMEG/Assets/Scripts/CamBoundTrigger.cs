@@ -11,15 +11,16 @@ public class CamBoundTrigger : MonoBehaviour {
     {
         if(collision.tag == "CameraBlock")
         {
-            blockDelegate(true, collision);
+			blockDelegate(true, collision);
         }
+
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.tag == "CameraBlock")
         {
-            blockDelegate(false, collision);
+			blockDelegate(false, collision);
         }
     }
 }
