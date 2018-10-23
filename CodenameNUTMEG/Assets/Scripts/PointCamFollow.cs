@@ -109,13 +109,6 @@ public class PointCamFollow : MonoBehaviour
         }
     }
 
-
-    public void SetBlockedY(bool b)
-    {
-        blockedY = b;
-    }
-    public void SetBlockedX(bool b)
-    {
-        blockedX = b;
-    }
+    public void SetBlockedY(bool b){ blockedY = b; }
+    public void SetBlockedX(bool b){ blockedX = b; }
 }
