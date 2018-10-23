@@ -112,14 +112,13 @@ public class PointCamFollow : MonoBehaviour
 
     public void SetBlocked(bool b, Collider2D c)
     {
-
         //get distance x and y.
 		float distX = Mathf.Abs(this.transform.position.x - c.transform.position.x);
 		float distY = Mathf.Abs(this.transform.position.y - c.transform.position.y);
 
         if (distX >= GetOrthographicCameraSize().x)
             blockedX = b;
-        else if (distY >= GetOrthographicCameraSize().y);
+        else if (distY >= GetOrthographicCameraSize().y)
             blockedY = b;
     }
 }
