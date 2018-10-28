@@ -113,6 +113,7 @@ public class PointCamFollow : MonoBehaviour
     {
         if (objectToFollow != null)
         {
+            //TODO change this.
             Vector2 point = Camera.main.WorldToViewportPoint(transform.position);
             Vector2 delta = objectToFollow.position - Camera.main.WorldToViewportPoint(new Vector2 (0.5f, 0.5f));
             Vector2 destination = (Vector2)transform.position + delta;

@@ -6,32 +6,27 @@ using UnityEngine;
 public class CharControl : MonoBehaviour {
 
     //editor-set fields
-    [SerializeField] private float moveSpeed = 0f;
-    //[SerializeField] private float jumpHeight = 0f;
-    //[SerializeField] private float gravity = 0f;
-    //[SerializeField][Range(0, .3f)] private float movementSmoothing = .05f;	// How much to smooth out the movement
+    [SerializeField] private float moveSpeed = 8f;
+    [SerializeField] private float jumpHeight = 3f;
+    [SerializeField] private float gravity = -25f;
 
-    //private fields, not accessible by editor.
-    //private BoxCollider2D _collider;
-    //private Rigidbody2D _rigidbody;
-    private CharMover _mover;
+
+    private CharacterController2D _mover;
 
     float horizontalMove;
-   // bool jump;
     private Vector3 _velocity;
 
     private bool facingRight;
 
     private void Awake()
     {
-        //_collider = this.GetComponent<BoxCollider2D>();
-        //_rigidbody = this.GetComponent<Rigidbody2D>();
-        _mover = this.GetComponent<CharMover>();
+        _mover = this.GetComponent<CharacterController2D>();
     }
 
     private void Update()
     {
-        //jump = false;
+        if (_mover.isGrounded)
+            _velocity.y = 0;
 
         horizontalMove = Input.GetAxisRaw("Horizontal");
 
@@ -40,28 +35,28 @@ public class CharControl : MonoBehaviour {
         else if (horizontalMove > 0 && facingRight)
             Flip();
 
+        //jump
+        if (_mover.isGrounded && Input.GetButtonDown("Jump"))
+            _velocity.y = Mathf.Sqrt(2f * jumpHeight * -gravity);
 
 
-        //if (Input.GetButton("Jump"))
-        //{
-        //    _velocity.y = Mathf.Sqrt(2f * jumpHeight * -gravity);
-        //}
-
-        Vector3 smoothVelocity = Vector3.zero;
+        if (_velocity.y > 0 & Input.GetButtonUp("Jump"))
+        {
+            _velocity.y = 0;
+        }
 
         //smooth horizontal movement.
-       // Vector2 targetVelocity = new Vector2(horizontalMove * moveSpeed, _velocity.y);
         _velocity.x = Mathf.Lerp(_velocity.x, horizontalMove * moveSpeed, Time.deltaTime * 20f);
-            //Vector3.SmoothDamp(_velocity, targetVelocity, ref smoothVelocity, movementSmoothing).x; //this might be problematic, dont know how it works.
 
-        //apply gravity
-        //_velocity.y += gravity * Time.deltaTime;
+        //Apply gravity
+        _velocity.y += gravity * Time.deltaTime;
 
         //pass the velocity, adjusted for deltaTime, to the mover for collision detection and other physics interactions.
-        _mover.Move(_velocity * Time.deltaTime);
+        _mover.move(_velocity * Time.deltaTime);
 
-
+        _velocity = _mover.velocity;
     }
+
     private void Flip()
     {
         //Switch the way the player is labelled as facing.

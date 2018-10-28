@@ -517,9 +517,9 @@ public class CharacterController2D : MonoBehaviour
 				if( !isGoingUp && deltaMovement.y > 0.00001f )
 					_isGoingUpSlope = true;
 
-				// we add a small fudge factor for the float operations here. if our rayDistance is smaller
-				// than the width + fudge bail out because we have a direct impact
-				if( rayDistance < _skinWidth + kSkinWidthFloatFudgeFactor )
+                // we add a small fudge factor for the float operations here. if our rayDistance is smaller
+                // than the width + fudge bail out because we have a direct impact
+                if (rayDistance < _skinWidth + kSkinWidthFloatFudgeFactor) ;
 					break;
 			}
 		}

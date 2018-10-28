@@ -12,6 +12,8 @@ public class CharMover : MonoBehaviour {
 
     private float skinWidth = 0.02f; //how much raycastpoints should be indented into the collider.
 
+    [HideInInspector] public bool isGrounded;
+
     public void Awake()
     {
         _boxCollider = this.GetComponent<BoxCollider2D>();
@@ -20,6 +22,7 @@ public class CharMover : MonoBehaviour {
 
     public void Move(Vector3 deltaMovement)
     {
+        isGrounded = false;
 
         PrimeRayCastOrigins();
         if (deltaMovement.x != 0f)
@@ -37,14 +40,12 @@ public class CharMover : MonoBehaviour {
     {
         bool isGoingRight = deltaMovement.x > 0;
         float rayDistance = Mathf.Abs(deltaMovement.x) + skinWidth;
-        Vector2 rayDirection = isGoingRight ? Vector2.right : -Vector2.right;
+        Vector2 rayDirection = isGoingRight ? Vector2.right : Vector2.left;
         Vector2 initialRayOrigin = isGoingRight ? rayOrigins.bottomRight : rayOrigins.bottomLeft;
 
         Vector2 ray = initialRayOrigin;
         RaycastHit2D rayHit = Physics2D.Raycast(ray, rayDirection, rayDistance, groundMask);
 
-
-        
         if (rayHit)
         {
             deltaMovement.x = rayHit.point.x - initialRayOrigin.x;
@@ -59,14 +60,36 @@ public class CharMover : MonoBehaviour {
                 deltaMovement.x += skinWidth;
             }
         }
-
-
-
     }
 
     private void MoveVertical(ref Vector3 deltaMovement)
     {
+        bool isGoingUp = deltaMovement.y > 0;
+        float rayDistance = Mathf.Abs(deltaMovement.y) + skinWidth;
+        Vector2 rayDirection = isGoingUp ? Vector2.up : Vector2.down;
+        Vector2 initialRayOrigin = isGoingUp ? rayOrigins.topLeft : rayOrigins.bottomLeft;
 
+        initialRayOrigin.x += deltaMovement.x;
+
+        Vector2 ray = initialRayOrigin;
+        RaycastHit2D rayHit = Physics2D.Raycast(ray, rayDirection, rayDistance, groundMask);
+
+        if (rayHit)
+        {
+            deltaMovement.y = rayHit.point.y - ray.y;
+            rayDistance = Mathf.Abs(deltaMovement.y);
+
+            if (isGoingUp)
+            {
+                deltaMovement.y -= skinWidth;
+            }
+            else
+            {
+                deltaMovement.y += skinWidth;
+                isGrounded = true;
+            }
+
+        }
     }
 
     private void PrimeRayCastOrigins()
