@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class CharMover : MonoBehaviour {
 
-    [SerializeField] private LayerMask groundMask;
+    [SerializeField] private LayerMask groundMask; //which layers count should be collided with.
+    [SerializeField] private int numHorizontalRays = 3;
+    [SerializeField] private int numVerticalRays = 3;
+    [SerializeField] public float skinWidth = 0.02f;
 
     BoxCollider2D _boxCollider;
 
+    //ray variables
     RayCastOrigins rayOrigins;
-
-    private float skinWidth = 0.02f; //how much raycastpoints should be indented into the collider.
+    float rayHeight;
+    float rayWidth;
 
     [HideInInspector] public bool isGrounded;
 
@@ -18,9 +22,11 @@ public class CharMover : MonoBehaviour {
     {
         _boxCollider = this.GetComponent<BoxCollider2D>();
         rayOrigins = new RayCastOrigins();
+
+        RecalculateDistanceBetweenRays();
     }
 
-    public void Move(Vector3 deltaMovement)
+    public void Move(Vector3 deltaMovement, bool isJumping)
     {
         isGrounded = false;
 
@@ -36,6 +42,7 @@ public class CharMover : MonoBehaviour {
         transform.Translate(deltaMovement, Space.World);
     }
 
+    #region secondary movement methods
     private void MoveHorizontal(ref Vector3 deltaMovement)
     {
         bool isGoingRight = deltaMovement.x > 0;
@@ -43,21 +50,26 @@ public class CharMover : MonoBehaviour {
         Vector2 rayDirection = isGoingRight ? Vector2.right : Vector2.left;
         Vector2 initialRayOrigin = isGoingRight ? rayOrigins.bottomRight : rayOrigins.bottomLeft;
 
-        Vector2 ray = initialRayOrigin;
-        RaycastHit2D rayHit = Physics2D.Raycast(ray, rayDirection, rayDistance, groundMask);
-
-        if (rayHit)
+        for (int i = 0; i < numVerticalRays; i++)
         {
-            deltaMovement.x = rayHit.point.x - initialRayOrigin.x;
-            rayDistance = Mathf.Abs(deltaMovement.x);
+            Vector2 ray = initialRayOrigin;
+            ray.y += rayHeight * i;
 
-            if (isGoingRight)
+            RaycastHit2D rayHit = Physics2D.Raycast(ray, rayDirection, rayDistance, groundMask);
+
+            if (rayHit)
             {
-                deltaMovement.x -= skinWidth;
-            }
-            else
-            {
-                deltaMovement.x += skinWidth;
+                deltaMovement.x = rayHit.point.x - ray.x;
+                rayDistance = Mathf.Abs(deltaMovement.x);
+
+                if (isGoingRight)
+                {
+                    deltaMovement.x -= skinWidth;
+                }
+                else
+                {
+                    deltaMovement.x += skinWidth;
+                }
             }
         }
     }
@@ -71,25 +83,41 @@ public class CharMover : MonoBehaviour {
 
         initialRayOrigin.x += deltaMovement.x;
 
-        Vector2 ray = initialRayOrigin;
-        RaycastHit2D rayHit = Physics2D.Raycast(ray, rayDirection, rayDistance, groundMask);
-
-        if (rayHit)
+        for (int i = 0; i < numHorizontalRays; i++)
         {
-            deltaMovement.y = rayHit.point.y - ray.y;
-            rayDistance = Mathf.Abs(deltaMovement.y);
+            Vector2 ray = initialRayOrigin;
+            ray.x += rayWidth * i;
 
-            if (isGoingUp)
-            {
-                deltaMovement.y -= skinWidth;
-            }
-            else
-            {
-                deltaMovement.y += skinWidth;
-                isGrounded = true;
-            }
+            RaycastHit2D rayHit = Physics2D.Raycast(ray, rayDirection, rayDistance, groundMask);
 
+            if (rayHit)
+            {
+                deltaMovement.y = rayHit.point.y - ray.y;
+                rayDistance = Mathf.Abs(deltaMovement.y);
+
+                if (isGoingUp)
+                {
+                    deltaMovement.y -= skinWidth;
+                }
+                else
+                {
+                    deltaMovement.y += skinWidth;
+                    isGrounded = true;
+                }
+
+            }
         }
+    }
+    #endregion
+
+    #region utility methods
+    private void RecalculateDistanceBetweenRays()
+    {
+        float colliderUsableWidth = _boxCollider.size.x * Mathf.Abs(transform.localScale.x) - (2f * skinWidth);
+        rayWidth = colliderUsableWidth / (numHorizontalRays - 1);
+
+        float colliderUsableHeight = _boxCollider.size.y * Mathf.Abs(transform.localScale.y) - (2f * skinWidth);
+        rayHeight = colliderUsableHeight / (numVerticalRays - 1);
     }
 
     private void PrimeRayCastOrigins()
@@ -104,6 +132,7 @@ public class CharMover : MonoBehaviour {
         rayOrigins.bottomLeft = new Vector2(modifiedBounds.min.x, modifiedBounds.min.y);
         rayOrigins.bottomRight = new Vector2(modifiedBounds.max.x, modifiedBounds.min.y);
     }
+    #endregion
 
     #region inner classes
     struct RayCastOrigins
@@ -113,5 +142,6 @@ public class CharMover : MonoBehaviour {
         public Vector2 bottomRight;
         public Vector2 bottomLeft;
     }
+
     #endregion
 }

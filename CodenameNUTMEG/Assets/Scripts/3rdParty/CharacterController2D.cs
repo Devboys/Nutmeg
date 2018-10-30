@@ -519,7 +519,7 @@ public class CharacterController2D : MonoBehaviour
 
                 // we add a small fudge factor for the float operations here. if our rayDistance is smaller
                 // than the width + fudge bail out because we have a direct impact
-                if (rayDistance < _skinWidth + kSkinWidthFloatFudgeFactor) ;
+                if (rayDistance < _skinWidth + kSkinWidthFloatFudgeFactor)
 					break;
 			}
 		}

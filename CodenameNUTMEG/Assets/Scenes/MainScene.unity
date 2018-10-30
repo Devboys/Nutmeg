@@ -966,10 +966,10 @@ MonoBehaviour:
   _skinWidth: 0.02
   platformMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1079
   triggerMask:
     serializedVersion: 2
-    m_Bits: 1591
+    m_Bits: 1079
   oneWayPlatformMask:
     serializedVersion: 2
     m_Bits: 0
@@ -1024,6 +1024,7 @@ MonoBehaviour:
   moveSpeed: 8
   jumpHeight: 3
   gravity: -25
+  jumpTime: 1
 --- !u!114 &873021648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1038,6 +1039,9 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 1079
+  numHorizontalRays: 3
+  numVerticalRays: 3
+  skinWidth: 0.02
   isGrounded: 0
 --- !u!1001 &961403719
 Prefab:
@@ -1917,7 +1921,7 @@ GameObject:
   - component: {fileID: 1732148148}
   - component: {fileID: 1732148146}
   - component: {fileID: 1732148145}
-  m_Layer: 9
+  m_Layer: 10
   m_Name: KillFloor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
