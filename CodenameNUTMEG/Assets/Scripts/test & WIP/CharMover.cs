@@ -9,13 +9,14 @@ public class CharMover : MonoBehaviour {
     [SerializeField] private int numVerticalRays = 3;
     [SerializeField] public float skinWidth = 0.02f;
 
-    BoxCollider2D _boxCollider;
+    private BoxCollider2D _boxCollider;
 
     //ray variables
-    RayCastOrigins rayOrigins;
-    float rayHeight;
-    float rayWidth;
+    private RayCastOrigins rayOrigins;
+    private float rayHeight;
+    private float rayWidth;
 
+    [HideInInspector] public Vector2 velocity;
     [HideInInspector] public bool isGrounded;
 
     public void Awake()
@@ -40,6 +41,8 @@ public class CharMover : MonoBehaviour {
         deltaMovement.z = 0;
 
         transform.Translate(deltaMovement, Space.World);
+
+        velocity = deltaMovement / Time.deltaTime;
     }
 
     #region secondary movement methods

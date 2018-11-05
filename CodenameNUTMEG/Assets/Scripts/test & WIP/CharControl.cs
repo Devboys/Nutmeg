@@ -8,10 +8,9 @@ public class CharControl : MonoBehaviour {
 
     //editor fields
     [SerializeField] private float moveSpeed = 8f;
-    [SerializeField] private float jumpHeight = 3f;
+    [SerializeField] private float maxJumpHeight = 3f;
+    [SerializeField] private float minJumpHeight = 0.5f;
     [SerializeField] private float gravity = -25f;
-    [SerializeField] private float jumpTime = 1f; //unused
-    [SerializeField] private float minimumJumpTime = 0.1f;
 
     [SerializeField] private float inAirDamping = 5f;
     [SerializeField] private float groundDamping = 20f;
@@ -24,18 +23,6 @@ public class CharControl : MonoBehaviour {
     //movement variables
     private float horizontalMove;
 
-    private bool jump;
-    private float currJumpTimer;
-    private float currJumpSpeed;
-    private bool lastJumpFrame;
-
-    private bool jumpCancelled;
-    private float totalJumpTime;
-
-    //debug
-    private float jumpInitHeight;
-    private float jumpMaxHeight = 0;
-
     private void Awake()
     {
         _mover = this.GetComponent<CharMover>();
@@ -43,7 +30,6 @@ public class CharControl : MonoBehaviour {
 
     private void Update()
     {
-        jump = false;
 
         if (_mover.isGrounded)
             _velocity.y = 0;
@@ -55,105 +41,116 @@ public class CharControl : MonoBehaviour {
         else if (horizontalMove > 0 && facingRight)
             Flip();
 
-        //jump
-        if (_mover.isGrounded && Input.GetButtonDown("Jump"))
-            jump = true;
-
-
         //Apply gravity
         _velocity.y += gravity * Time.deltaTime;
 
-        HandleJump(jump);
-
+        HandleVelocityBasedJump();
 
         //smooth horizontal movement. TODO: replace with smoothDamp TODO: apply horizontal in-air damping.
         float dampingFactor = _mover.isGrounded ? groundDamping : inAirDamping;
         _velocity.x = Mathf.Lerp(_velocity.x, horizontalMove * moveSpeed, Time.deltaTime * dampingFactor);
 
-
-
         //pass the velocity, adjusted for deltaTime, to the mover for collision detection and other physics interactions.
         _mover.Move(_velocity * Time.deltaTime, false);
+
+        _velocity = _mover.velocity;
     }
 
 
-    //Standard jump with minimum jump-height. Cancel still needs to be made accurate.
-    private void HandleJump(bool jump)
+    private void HandleVelocityBasedJump()
     {
-        //make jump cancelable
-        if (_velocity.y > 0 & Input.GetButtonUp("Jump"))
+
+        //if jump was initiated, calculate initial velocity so that the jump-arc will apex at height defined by maxJumpHeight;
+        if (Input.GetButtonDown("Jump") && _mover.isGrounded)
         {
-            jumpCancelled = true;
+            //formula derived from vf^2 = vi^2 + 2ad
+            _velocity.y = Mathf.Sqrt(2f * maxJumpHeight * -gravity);
         }
-
-        if (currJumpTimer > 0)
+        
+        //if jump is cancelled, set player velocity to be equal to initial velocity as defined by minJumpHeight.
+        if (Input.GetButtonUp("Jump")  && _velocity.y > Mathf.Sqrt(2f * minJumpHeight * -gravity))
         {
-            //Only stop jump if minimum jump time has passed.
-            if (jumpCancelled && (totalJumpTime - currJumpTimer) >= minimumJumpTime)
-            {
-                _velocity.y = 0;
-                currJumpTimer = 0;
-                jumpCancelled = false;
-            }
-
-            currJumpTimer -= Time.deltaTime;
-
-        }
-
-        if (jump)
-        {
-            //set upward speed to cancel out with gravity at jumpHeight;
-            _velocity.y = Mathf.Sqrt(2f * jumpHeight * -gravity);
-
-            //calculate the total time it will take for the jump to reach it's peak, and set the jumpTimer accordingly.
-            totalJumpTime = (_velocity.y) / Mathf.Abs(gravity);
-            currJumpTimer = totalJumpTime;
+            _velocity.y = Mathf.Sqrt(2f * minJumpHeight * -gravity);
         }
     }
 
-    //Half-finished per-frame controlled jump method
-    private void HandleFramePerfectJump(bool jump)
-    {
+    /*Standard jump with minimum jump-height. Cancel still needs to be made accurate. Jump cancel feels bad*/
+    //private void HandleJump(bool jump)
+    //{
+    //    //make jump cancelable
+    //    if (_velocity.y > 0 & Input.GetButtonUp("Jump"))
+    //    {
+    //        jumpCancelled = true;
+    //    }
 
-        if (jump)
-        {
-            currJumpTimer = jumpTime;
-            currJumpSpeed = jumpHeight / jumpTime;
+    //    if (currJumpTimer > 0)
+    //    {
+    //        //Only stop jump if minimum jump time has passed.
+    //        if (jumpCancelled && (totalJumpTime - currJumpTimer) >= minimumJumpTime)
+    //        {
+    //            _velocity.y = 0;
+    //            currJumpTimer = 0;
+    //            jumpCancelled = false;
+    //        }
 
-            jumpInitHeight = transform.position.y;
-        }
+    //        currJumpTimer -= Time.deltaTime;
+
+    //    }
+
+    //    if (jump)
+    //    {
+    //        //set upward speed to cancel out with gravity at jumpHeight;
+    //        _velocity.y = Mathf.Sqrt(2f * maxJumpHeight * -gravity);
+
+    //        //calculate the total time it will take for the jump to reach it's peak, and set the jumpTimer accordingly.
+    //        totalJumpTime = (_velocity.y) / Mathf.Abs(gravity);
+    //        currJumpTimer = totalJumpTime;
+    //    }
+    //}
+
+    /*Half-finished per-frame controlled jump method*/
+    //private void HandleFramePerfectJump(bool jump)
+    //{
+
+    //    if (jump)
+    //    {
+    //        currJumpTimer = jumpTime;
+    //        currJumpSpeed = maxJumpHeight / jumpTime;
+
+    //        jumpInitHeight = transform.position.y;
+    //    }
 
         
 
-        if(currJumpTimer > 0)
-        {
-            _velocity.y = ((currJumpTimer - Time.deltaTime) < 0) ? (currJumpSpeed * currJumpTimer) / Time.deltaTime : currJumpSpeed;
-            currJumpTimer -= Time.deltaTime;
+    //    if(currJumpTimer > 0)
+    //    {
+    //        _velocity.y = ((currJumpTimer - Time.deltaTime) < 0) ? (currJumpSpeed * currJumpTimer) / Time.deltaTime : currJumpSpeed;
+    //        currJumpTimer -= Time.deltaTime;
 
-            if(currJumpTimer <= 0)
-            {
-                //Debug.Log(currJumpTimer);
-                lastJumpFrame = true;
-            }
+    //        if(currJumpTimer <= 0)
+    //        {
+    //            //Debug.Log(currJumpTimer);
+    //            lastJumpFrame = true;
+    //        }
 
-        }
+    //    }
 
-        else if (lastJumpFrame)
-        {
-            _velocity.y = 0;
-            lastJumpFrame = false;
-        }
+    //    else if (lastJumpFrame)
+    //    {
+    //        _velocity.y = 0;
+    //        lastJumpFrame = false;
+    //    }
 
-        //debug
-        float heightDif = transform.position.y - jumpInitHeight;
+    //    //debug
+    //    float heightDif = transform.position.y - jumpInitHeight;
 
-        if ((heightDif > jumpMaxHeight))
-        {
-            jumpMaxHeight = heightDif;
-            Debug.Log(jumpMaxHeight);
-        }
+    //    if ((heightDif > jumpMaxHeight))
+    //    {
+    //        jumpMaxHeight = heightDif;
+    //        Debug.Log(jumpMaxHeight);
+    //    }
 
-    }
+    //}
 
     private void Flip()
     {
