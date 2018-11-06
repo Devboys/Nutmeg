@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4852507198953772}
   - component: {fileID: 50940365095312768}
   - component: {fileID: 61529974896321946}
-  - component: {fileID: 114288987395769412}
+  - component: {fileID: 114006630950324846}
   m_Layer: 8
   m_Name: CameraBound
   m_TagString: Untagged
@@ -87,7 +87,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &114288987395769412
+--- !u!114 &114006630950324846
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -95,6 +95,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1795030538965110}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a64ac951160d8474ca1c9d51974f065f, type: 3}
+  m_Script: {fileID: 11500000, guid: 191266b05c211c045bf317ce819764fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
