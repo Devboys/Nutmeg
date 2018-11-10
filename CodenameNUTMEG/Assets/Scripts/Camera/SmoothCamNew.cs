@@ -105,7 +105,6 @@ public class SmoothCamNew : MonoBehaviour {
 
     void AdjustForBounds(ref Vector3 newPos)
     {
-        //check for bounds
         if (xMin.HasValue && newPos.x < xMin)
             newPos.x = xMin.Value;
         else if (xMax.HasValue && newPos.x > xMax)

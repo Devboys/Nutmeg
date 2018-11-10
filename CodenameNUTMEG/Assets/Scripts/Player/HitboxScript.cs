@@ -6,7 +6,7 @@ public class HitboxScript : MonoBehaviour {
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        if (collision.gameObject.CompareTag("DamageSource"))
         {
             this.GetComponentInParent<PlayerHealthHandler>().ModHealth(-1);
         }

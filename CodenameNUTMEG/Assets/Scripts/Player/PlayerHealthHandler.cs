@@ -6,20 +6,26 @@ using UnityEngine;
 public class PlayerHealthHandler : MonoBehaviour {
 
     [SerializeField] private int initHealth = 3;
+    [SerializeField] private int maxHealth = 3;
 
     public event Action<int> onHealthChangedEvent;
 
 
-    public int currentHealth;
+    [HideInInspector] public int currentHealth; 
 
     private void Start()
     {
+
         currentHealth = initHealth;
+        
     }
 
     public void ModHealth(int amount)
     {
         currentHealth += amount;
+
+        if (currentHealth > maxHealth)
+            currentHealth = maxHealth;
 
         if(onHealthChangedEvent != null)
         {
@@ -39,9 +45,7 @@ public class PlayerHealthHandler : MonoBehaviour {
         ModHealth(initHealth);
     }
 
-    public int GetInitHealth()
-    {
-        return initHealth;
-    }
+    public int GetInitHealth() { return initHealth; }
+    public int GetMaxHealth()  { return maxHealth; }
 }
 
