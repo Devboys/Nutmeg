@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
@@ -6,7 +7,7 @@ using Unity.Collections;
 [RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D))]
 public class CharControl : MonoBehaviour {
 
-    //editor fields
+    [Header("Movement")]
     [SerializeField] private float moveSpeed = 8f;
     [SerializeField] private float maxJumpHeight = 3f;
     [SerializeField] private float minJumpHeight = 0.5f;
@@ -15,15 +16,21 @@ public class CharControl : MonoBehaviour {
     [SerializeField] private float inAirDamping = 5f;
     [SerializeField] private float groundDamping = 20f;
 
-    private CharMover _mover;
-
+    //movement variables
     private Vector3 _velocity;
     private bool facingRight;
-
-    //movement variables
     private float horizontalMove;
 
-    private void Awake()
+    //component cache
+    private CharMover _mover;
+
+    //movement events
+    public event Action OnMoveStartEvent; //yet to be implemented. Requires "was-moving-last-frame" indicator.
+    public event Action OnMoveEndEvent; //yet to be implemented. Requires "was-moving-last-frame" indicator.
+    public event Action OnJumpEvent;
+    public event Action OnLandEvent; //yet to be implemented. Requires "was-in-air-last-frame" indicator.
+
+    private void Start()
     {
         _mover = this.GetComponent<CharMover>();
     }
@@ -54,8 +61,8 @@ public class CharControl : MonoBehaviour {
         _mover.Move(_velocity * Time.deltaTime, false);
 
         _velocity = _mover.velocity;
-    }
 
+    }
 
     private void HandleVelocityBasedJump()
     {
@@ -65,6 +72,9 @@ public class CharControl : MonoBehaviour {
         {
             //formula derived from vf^2 = vi^2 + 2ad
             _velocity.y = Mathf.Sqrt(2f * maxJumpHeight * -gravity);
+
+            //call event
+            OnJumpEvent();
         }
         
         //if jump is cancelled, set player velocity to be equal to initial velocity as defined by minJumpHeight.

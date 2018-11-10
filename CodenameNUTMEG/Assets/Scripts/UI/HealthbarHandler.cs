@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class HealthbarHandler : MonoBehaviour {
 
-    [SerializeField] PlayerHealthHandler playerHealthScript;
+    [SerializeField] PlayerHealthHandler targetHealthHandler;
     [SerializeField] GameObject heartPrefab;
 
     List<GameObject> hearts = new List<GameObject>();
@@ -14,29 +14,26 @@ public class HealthbarHandler : MonoBehaviour {
     private void Start()
     {
         //cache a heart for each available health point.
-        for(int i = 0; i < playerHealthScript.GetMaxHealth(); i++)
+        for(int i = 0; i < targetHealthHandler.GetMaxHealth(); i++)
         {
             GameObject newHeart = Instantiate(heartPrefab);
 
             newHeart.GetComponent<RectTransform>().SetParent(this.GetComponent<RectTransform>());
-
             newHeart.GetComponent<RectTransform>().anchoredPosition = new Vector2((heartSpriteSize * hearts.Count) - heartSpriteSize, 0);
 
             //cached hearts are not active, but are activated when needed.
             newHeart.SetActive(false);
 
             hearts.Add(newHeart);
-
         }
 
-        //enable enough hearts to indicate initHealth
-        for (int i = 0; i < playerHealthScript.GetInitHealth(); i++)
+        //We cannot guarantee start() call order, so activate hearts based on InitHealth rather than CurrentHealth at this time.
+        for (int i = 0; i < targetHealthHandler.GetInitHealth(); i++)
         {
             hearts[i].SetActive(true);
         }
 
-
-        playerHealthScript.onHealthChangedEvent += UpdateHeartDisplay;
+        targetHealthHandler.OnHealthChangedEvent += UpdateHeartDisplay;
     }
 
     public void UpdateHeartDisplay(int totalNumHearts)

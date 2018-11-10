@@ -8,7 +8,7 @@ public class PlayerHealthHandler : MonoBehaviour {
     [SerializeField] private int initHealth = 3;
     [SerializeField] private int maxHealth = 3;
 
-    public event Action<int> onHealthChangedEvent;
+    public event Action<int> OnHealthChangedEvent;
 
     private int _currentHealth; //currenthealth value.
     [HideInInspector] public int currentHealth //currenthealth-property
@@ -16,8 +16,8 @@ public class PlayerHealthHandler : MonoBehaviour {
         set
         {
             _currentHealth = value;
-            if (onHealthChangedEvent != null)
-                onHealthChangedEvent(_currentHealth);
+            if (OnHealthChangedEvent != null)
+                OnHealthChangedEvent(_currentHealth);
         }
         get{ return _currentHealth; }
     } 
