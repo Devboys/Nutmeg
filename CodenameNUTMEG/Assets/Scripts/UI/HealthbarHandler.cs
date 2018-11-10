@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class HealthbarHandler : MonoBehaviour {
 
-    [SerializeField] PlayerHealthHandler targetHealthHandler;
-    [SerializeField] GameObject heartPrefab;
+    [SerializeField] private PlayerHealthHandler targetHealthHandler;
+    [SerializeField] private GameObject heartPrefab;
 
     List<GameObject> hearts = new List<GameObject>();
 
-    private readonly int heartSpriteSize = 35;
+    private readonly int heartSpriteSize = 45;
 
     private void Start()
     {

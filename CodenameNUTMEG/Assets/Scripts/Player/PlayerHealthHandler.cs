@@ -10,7 +10,7 @@ public class PlayerHealthHandler : MonoBehaviour {
 
     public event Action<int> OnHealthChangedEvent;
 
-    private int _currentHealth; //currenthealth value.
+    private int _currentHealth; //currenthealth-value.
     [HideInInspector] public int currentHealth //currenthealth-property
     {
         set
@@ -24,9 +24,7 @@ public class PlayerHealthHandler : MonoBehaviour {
 
     private void Start()
     {
-
         currentHealth = initHealth;
-        
     }
 
     public void ModHealth(int amount)
