@@ -1280,7 +1280,6 @@ MonoBehaviour:
   numVerticalRays: 3
   skinWidth: 0.02
   velocity: {x: 0, y: 0}
-  isGrounded: 0
 --- !u!1001 &961403719
 Prefab:
   m_ObjectHideFlags: 0
@@ -1375,6 +1374,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetController: {fileID: 873021647}
   jumpSound: {fileID: 8300000, guid: ba16e14e7ef305b459c9e932d31a31fa, type: 3}
+  landSound: {fileID: 8300000, guid: ba16e14e7ef305b459c9e932d31a31fa, type: 3}
+  runSound: {fileID: 8300000, guid: 49b6d86b05116ed41b535d441773b07c, type: 3}
 --- !u!82 &1023559818
 AudioSource:
   m_ObjectHideFlags: 0

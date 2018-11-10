@@ -9,6 +9,8 @@ public class PlayerSFXHandler : MonoBehaviour {
 
     [Header("Audio Files")]
     [SerializeField] private AudioClip jumpSound;
+    [SerializeField] private AudioClip landSound;
+    [SerializeField] private AudioClip runSound;
 
 
     //component cache
@@ -18,15 +20,39 @@ public class PlayerSFXHandler : MonoBehaviour {
     {
         _audioSource = GetComponent<AudioSource>();
 
-        targetController.OnJumpEvent += playJumpSound;
+        //"subscribe" to relevant events from controller.
+        targetController.OnJumpEvent += PlayJumpSound;
+        targetController.OnLandEvent += PlayLandSound;
+        targetController.OnRunStartEvent += StartRunSound;
+        targetController.OnRunEndEvent += StopRunSound;
     }
 
-
-    private void playJumpSound()
+    public void PlayJumpSound()
     {
         _audioSource.clip = jumpSound;
         _audioSource.loop = false;
         _audioSource.Play();
+    }
+
+    public void PlayLandSound()
+    {
+        _audioSource.clip = landSound;
+        _audioSource.loop = false;
+        _audioSource.Play();
+    }
+
+    public void StartRunSound()
+    {
+        _audioSource.clip = runSound;
+        _audioSource.loop = true;
+        _audioSource.Play();
+    }
+
+    public void StopRunSound()
+    {
+        _audioSource.clip = null;
+        _audioSource.loop = false;
+        _audioSource.Stop();
     }
 
 

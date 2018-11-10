@@ -9,6 +9,7 @@ public class CharMover : MonoBehaviour {
     [SerializeField] private int numVerticalRays = 3;
     [SerializeField] public float skinWidth = 0.02f;
 
+    //component cache.
     private BoxCollider2D _boxCollider;
 
     //ray variables
@@ -17,7 +18,19 @@ public class CharMover : MonoBehaviour {
     private float rayWidth;
 
     [HideInInspector] public Vector2 velocity;
-    [HideInInspector] public bool isGrounded;
+
+    //collision state
+    [HideInInspector] private CharacterCollisionState2D collisionState;
+    [HideInInspector] public bool IsGrounded
+    {
+        get{ return collisionState.below; }
+    }
+    [HideInInspector] public bool HasLanded
+    {
+        get { return collisionState.becameGroundedThisFrame; }
+    }
+
+
 
     public void Awake()
     {
@@ -25,27 +38,34 @@ public class CharMover : MonoBehaviour {
         rayOrigins = new RayCastOrigins();
 
         RecalculateDistanceBetweenRays();
+        collisionState = new CharacterCollisionState2D();
     }
 
     public void Move(Vector3 deltaMovement, bool isJumping)
     {
-        isGrounded = false;
+        collisionState.wasGroundedLastFrame = collisionState.below;
+        collisionState.Reset();
 
         PrimeRayCastOrigins();
+
+        //Do movement & update collisionState for the current frame.
         if (deltaMovement.x != 0f)
             MoveHorizontal(ref deltaMovement);
-
         if (deltaMovement.y != 0f)
             MoveVertical(ref deltaMovement);
 
+        //update post-movement collisonState.
+        if(!collisionState.wasGroundedLastFrame && collisionState.below)
+        {
+            collisionState.becameGroundedThisFrame = true;
+        }
+
         deltaMovement.z = 0;
-
         transform.Translate(deltaMovement, Space.World);
-
         velocity = deltaMovement / Time.deltaTime;
     }
 
-    #region secondary movement methods
+    #region movement methods
     private void MoveHorizontal(ref Vector3 deltaMovement)
     {
         bool isGoingRight = deltaMovement.x > 0;
@@ -68,10 +88,12 @@ public class CharMover : MonoBehaviour {
                 if (isGoingRight)
                 {
                     deltaMovement.x -= skinWidth;
+                    collisionState.right = true;
                 }
                 else
                 {
                     deltaMovement.x += skinWidth;
+                    collisionState.left = true;
                 }
             }
         }
@@ -101,11 +123,12 @@ public class CharMover : MonoBehaviour {
                 if (isGoingUp)
                 {
                     deltaMovement.y -= skinWidth;
+                    collisionState.above = true;
                 }
                 else
                 {
                     deltaMovement.y += skinWidth;
-                    isGrounded = true;
+                    collisionState.below = true;
                 }
 
             }
@@ -137,13 +160,31 @@ public class CharMover : MonoBehaviour {
     }
     #endregion
 
-    #region inner classes
+    #region inner types
     struct RayCastOrigins
     {
         public Vector2 topLeft;
         public Vector2 topRight;
         public Vector2 bottomRight;
         public Vector2 bottomLeft;
+    }
+
+    class CharacterCollisionState2D
+    {
+        public bool right;
+        public bool left;
+        public bool above;
+        public bool below;
+        public bool becameGroundedThisFrame;
+        public bool wasGroundedLastFrame;
+        public bool movingDownSlope;
+        public float slopeAngle;
+
+        public void Reset()
+        {
+            right = left = above = below = becameGroundedThisFrame = movingDownSlope = false;
+            slopeAngle = 0f;
+        }
     }
 
     #endregion

@@ -25,10 +25,10 @@ public class CharControl : MonoBehaviour {
     private CharMover _mover;
 
     //movement events.
-    public event Action OnMoveStartEvent; //yet to be implemented. Requires "was-moving-last-frame" indicator.
-    public event Action OnMoveEndEvent; //yet to be implemented. Requires "was-moving-last-frame" indicator.
+    public event Action OnRunStartEvent;
+    public event Action OnRunEndEvent;
     public event Action OnJumpEvent;
-    public event Action OnLandEvent; //yet to be implemented. Requires "was-in-air-last-frame" indicator.
+    public event Action OnLandEvent;
 
     private void Start()
     {
@@ -37,10 +37,10 @@ public class CharControl : MonoBehaviour {
 
     private void Update()
     {
-
-        if (_mover.isGrounded)
+        if (_mover.IsGrounded)
             _velocity.y = 0;
 
+        bool wasRunningLastFrame = (horizontalMove != 0);
         horizontalMove = Input.GetAxisRaw("Horizontal");
 
         if (horizontalMove < 0 && !facingRight)
@@ -54,13 +54,24 @@ public class CharControl : MonoBehaviour {
         HandleJump();
 
         //smooth horizontal movement. TODO: replace with smoothDamp TODO: apply horizontal in-air damping.
-        float dampingFactor = _mover.isGrounded ? groundDamping : inAirDamping;
+        float dampingFactor = _mover.IsGrounded ? groundDamping : inAirDamping;
         _velocity.x = Mathf.Lerp(_velocity.x, horizontalMove * moveSpeed, Time.deltaTime * dampingFactor);
 
         //pass the velocity, adjusted for deltaTime, to the mover for collision detection and other physics interactions.
         _mover.Move(_velocity * Time.deltaTime, false);
-
         _velocity = _mover.velocity;
+
+        //we call current-frame events after _mover.Move() so that we can use the post-movement collision state.
+        if (_mover.HasLanded && OnLandEvent != null)
+        {
+            OnLandEvent();
+        }
+        //run-event should be called in the frame that movement goes from 0 to not-zero, as well as any frame where the player lands while moving.
+        if ((!wasRunningLastFrame || _mover.HasLanded) && horizontalMove != 0 && _mover.IsGrounded)
+            OnRunStartEvent();
+        else if (wasRunningLastFrame && horizontalMove == 0 && _mover.IsGrounded)
+            OnRunEndEvent();
+
 
     }
 
@@ -68,13 +79,16 @@ public class CharControl : MonoBehaviour {
     {
 
         //if jump was initiated, calculate initial velocity so that the jump-arc will apex at height defined by maxJumpHeight;
-        if (Input.GetButtonDown("Jump") && _mover.isGrounded)
+        if (Input.GetButtonDown("Jump") && _mover.IsGrounded)
         {
             //formula derived from vf^2 = vi^2 + 2ad
             _velocity.y = Mathf.Sqrt(2f * maxJumpHeight * -gravity);
 
             //call event
-            OnJumpEvent();
+            if(OnJumpEvent != null)
+            {
+                OnJumpEvent();
+            }
         }
         
         //if jump is cancelled, set player velocity to be equal to initial velocity as defined by minJumpHeight.
