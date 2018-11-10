@@ -8,7 +8,7 @@ public class tempDeathScript : MonoBehaviour {
     {
         if (other.gameObject.name == "Player")
         {
-            other.transform.position = Vector3.zero;
+            other.GetComponent<PlayerHealthHandler>().ModHealth(-100);
         }
     }
 }

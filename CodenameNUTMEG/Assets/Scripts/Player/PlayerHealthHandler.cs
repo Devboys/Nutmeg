@@ -10,8 +10,17 @@ public class PlayerHealthHandler : MonoBehaviour {
 
     public event Action<int> onHealthChangedEvent;
 
-
-    [HideInInspector] public int currentHealth; 
+    private int _currentHealth; //currenthealth value.
+    [HideInInspector] public int currentHealth //currenthealth-property
+    {
+        set
+        {
+            _currentHealth = value;
+            if (onHealthChangedEvent != null)
+                onHealthChangedEvent(_currentHealth);
+        }
+        get{ return _currentHealth; }
+    } 
 
     private void Start()
     {
@@ -27,11 +36,6 @@ public class PlayerHealthHandler : MonoBehaviour {
         if (currentHealth > maxHealth)
             currentHealth = maxHealth;
 
-        if(onHealthChangedEvent != null)
-        {
-            onHealthChangedEvent(currentHealth);
-        }
-
         if(currentHealth <= 0)
         {
             Die();
@@ -40,12 +44,12 @@ public class PlayerHealthHandler : MonoBehaviour {
 
     private void Die()
     {
-        //temporary die
+        //temp die mechanism
         transform.position = Vector3.zero;
-        ModHealth(initHealth);
+        currentHealth = initHealth;
     }
 
-    public int GetInitHealth() { return initHealth; }
-    public int GetMaxHealth()  { return maxHealth; }
+    public int GetInitHealth(){ return initHealth; }
+    public int GetMaxHealth(){ return maxHealth; }
 }
 
