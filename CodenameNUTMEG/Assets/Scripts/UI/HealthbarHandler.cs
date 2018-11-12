@@ -48,8 +48,6 @@ public class HealthbarHandler : MonoBehaviour {
         int numHearts = enableZeldaHearts ? numHealthToDisplay / 2 : numHealthToDisplay;
         bool showHalfHeart = enableZeldaHearts ? (numHealthToDisplay % 2 > 0) : false;
 
-        Debug.Log(numHearts + ", " + showHalfHeart);
-
         //empty heart list.
         for(int i = hearts.Count; i > 0; i--)
         {
