@@ -27,28 +27,23 @@ public class EnemyFollowerScript : MonoBehaviour {
 
     public void OnTriggerExit2D(Collider2D collision)
     {
-        if (targetToFollow != null && collision == targetToFollow)
+        if (targetToFollow != null && collision.GetComponent<Transform>() == targetToFollow)
         {
             targetToFollow = null;
-            _rigidbody.velocity = Vector2.zero;
+            _rigidbody.velocity *= new Vector2(0, 1);
         }
 
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (targetToFollow != null)
         {
-            float distToTargetX = targetToFollow.position.x - _transform.position.x;
-            Vector2 vectorToTarget = new Vector2(distToTargetX, 0);
-            
-            if(Mathf.Abs(distToTargetX) > 0.05)
-            vectorToTarget.Normalize();
+            _transform.LookAt(targetToFollow.position);
+            transform.Rotate(new Vector3(0, -90, 0), Space.Self);
 
-            vectorToTarget.x *= aggroedMovespeed;
-
-
-            _rigidbody.velocity = vectorToTarget;
+            if (Vector3.Distance(_transform.position, targetToFollow.position) > 0.05f);
+            transform.Translate(new Vector3(aggroedMovespeed * Time.deltaTime, 0, 0));
         }
     }
 }

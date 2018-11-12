@@ -20,7 +20,5 @@ public class FollowerAggroboxScript : MonoBehaviour {
     private void OnTriggerExit2D(Collider2D collision)
     {
         parentScript.OnTriggerExit2D(collision);
-
-        Debug.Log("exit");
     }
 }
