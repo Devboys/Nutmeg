@@ -59,6 +59,7 @@ public class CharControl : MonoBehaviour {
 
         //pass the velocity, adjusted for deltaTime, to the mover for collision detection and other physics interactions.
         _mover.Move(_velocity * Time.deltaTime, false);
+
         _velocity = _mover.velocity;
 
         //we call current-frame events after _mover.Move() so that we can use the post-movement collision state.
@@ -67,9 +68,9 @@ public class CharControl : MonoBehaviour {
             OnLandEvent();
         }
         //run-event should be called in the frame that movement goes from 0 to not-zero, as well as any frame where the player lands while moving.
-        if ((!wasRunningLastFrame || _mover.HasLanded) && horizontalMove != 0 && _mover.IsGrounded)
+        if ((!wasRunningLastFrame || _mover.HasLanded) && horizontalMove != 0 && _mover.IsGrounded && !_mover.HasCollidedHorizontal)
             OnRunStartEvent();
-        else if (wasRunningLastFrame && horizontalMove == 0 && _mover.IsGrounded)
+        else if ((wasRunningLastFrame && horizontalMove == 0 && _mover.IsGrounded) || _mover.HasLeftGround || _mover.IsGrounded && _mover.HasCollidedHorizontal)
             OnRunEndEvent();
 
 

@@ -12,7 +12,6 @@ public class PlayerSFXHandler : MonoBehaviour {
     [SerializeField] private AudioClip landSound;
     [SerializeField] private AudioClip runSound;
 
-
     //component cache
     private AudioSource _audioSource;
 
@@ -50,9 +49,12 @@ public class PlayerSFXHandler : MonoBehaviour {
 
     public void StopRunSound()
     {
-        _audioSource.clip = null;
-        _audioSource.loop = false;
-        _audioSource.Stop();
+        //runEndEvent is called when jumping as well, so make sure that the sound to be stopped is the run-sound.
+        if (_audioSource.clip == runSound) 
+        {
+            _audioSource.clip = null;
+            _audioSource.loop = false;
+        }
     }
 
 

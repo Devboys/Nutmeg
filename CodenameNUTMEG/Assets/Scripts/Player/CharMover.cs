@@ -29,6 +29,14 @@ public class CharMover : MonoBehaviour {
     {
         get { return collisionState.becameGroundedThisFrame; }
     }
+    [HideInInspector] public bool HasLeftGround
+    {
+        get { return collisionState.leftGroundThisFrame; }
+    }
+    [HideInInspector] public bool HasCollidedHorizontal
+    {
+        get { return (collisionState.left || collisionState.right); }
+    }
 
 
 
@@ -55,10 +63,10 @@ public class CharMover : MonoBehaviour {
             MoveVertical(ref deltaMovement);
 
         //update post-movement collisonState.
-        if(!collisionState.wasGroundedLastFrame && collisionState.below)
-        {
+        if (!collisionState.wasGroundedLastFrame && collisionState.below)
             collisionState.becameGroundedThisFrame = true;
-        }
+        if (collisionState.wasGroundedLastFrame && !collisionState.below)
+            collisionState.leftGroundThisFrame = true;
 
         deltaMovement.z = 0;
         transform.Translate(deltaMovement, Space.World);
@@ -177,12 +185,14 @@ public class CharMover : MonoBehaviour {
         public bool below;
         public bool becameGroundedThisFrame;
         public bool wasGroundedLastFrame;
+        public bool leftGroundThisFrame;
+
         public bool movingDownSlope;
         public float slopeAngle;
 
         public void Reset()
         {
-            right = left = above = below = becameGroundedThisFrame = movingDownSlope = false;
+            right = left = above = below = becameGroundedThisFrame = movingDownSlope = leftGroundThisFrame =  false;
             slopeAngle = 0f;
         }
     }
