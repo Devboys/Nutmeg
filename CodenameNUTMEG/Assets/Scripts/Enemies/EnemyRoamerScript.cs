@@ -52,9 +52,6 @@ public class EnemyRoamerScript : MonoBehaviour {
             _rigidbody2D.velocity = new Vector2(moveSpeed, 0);
         else
             _rigidbody2D.velocity = new Vector2(-moveSpeed, 0);
-
-
-
     }
 
     private void Flip()
