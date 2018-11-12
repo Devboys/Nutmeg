@@ -542,6 +542,8 @@ MonoBehaviour:
   targetHealthHandler: {fileID: 873021643}
   heartPrefab: {fileID: 1101010054410804, guid: 075fe1ed8ac72e046b42f9a779e9600f,
     type: 2}
+  halfHeartPrefab: {fileID: 1902828904290106, guid: 90a307c7de9a1ee468a83526f88f0299,
+    type: 2}
 --- !u!1001 &578047334
 Prefab:
   m_ObjectHideFlags: 0
@@ -781,7 +783,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &690606324
 Transform:
   m_ObjectHideFlags: 0

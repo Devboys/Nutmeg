@@ -5,9 +5,14 @@ using UnityEngine;
 public class HealthbarHandler : MonoBehaviour {
 
     [SerializeField] private PlayerHealthHandler targetHealthHandler;
+    [SerializeField] private bool enableZeldaHearts;
+
+    [Header("UI Prefabs")]
     [SerializeField] private GameObject heartPrefab;
+    [SerializeField] private GameObject halfHeartPrefab;
 
     List<GameObject> hearts = new List<GameObject>();
+    GameObject halfHeart;
 
     private readonly int heartSpriteSize = 45;
 
@@ -27,17 +32,24 @@ public class HealthbarHandler : MonoBehaviour {
             hearts.Add(newHeart);
         }
 
+        halfHeart = Instantiate(halfHeartPrefab);
+        halfHeart.GetComponent<RectTransform>().SetParent(this.GetComponent<RectTransform>());
+        halfHeart.SetActive(false);
+
         //We cannot guarantee start() call order, so activate hearts based on InitHealth rather than CurrentHealth at this time.
-        for (int i = 0; i < targetHealthHandler.GetInitHealth(); i++)
-        {
-            hearts[i].SetActive(true);
-        }
+        UpdateHeartDisplay(targetHealthHandler.GetInitHealth());
 
         targetHealthHandler.OnHealthChangedEvent += UpdateHeartDisplay;
     }
 
-    public void UpdateHeartDisplay(int totalNumHearts)
+    public void UpdateHeartDisplay(int numHealthToDisplay)
     {
+        
+        int numHearts = enableZeldaHearts ? numHealthToDisplay / 2 : numHealthToDisplay;
+        bool showHalfHeart = enableZeldaHearts ? (numHealthToDisplay % 2 > 0) : false;
+
+        Debug.Log(numHearts + ", " + showHalfHeart);
+
         //empty heart list.
         for(int i = hearts.Count; i > 0; i--)
         {
@@ -45,9 +57,19 @@ public class HealthbarHandler : MonoBehaviour {
         }
 
         //fill heart list.
-        for (int i = 0; i < totalNumHearts; i++)
+        for (int i = 0; i < numHearts; i++)
         {
             hearts[i].SetActive(true);
+        }
+
+        if (showHalfHeart && enableZeldaHearts)
+        {
+            halfHeart.GetComponent<RectTransform>().anchoredPosition = new Vector2((heartSpriteSize * numHearts) - heartSpriteSize, 0);
+            halfHeart.SetActive(true);
+        }
+        else
+        {
+            halfHeart.SetActive(false);
         }
     }
 
