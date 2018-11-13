@@ -30,11 +30,6 @@ public class CharControl : MonoBehaviour {
     public event Action OnJumpEvent;
     public event Action OnLandEvent;
 
-    //Modifiers
-    public bool doubleJump;
-    public bool doubleJumped;
-    public bool wallJump;
-
     private void Start()
     {
         _mover = this.GetComponent<CharMover>();
@@ -83,31 +78,19 @@ public class CharControl : MonoBehaviour {
 
     private void HandleJump()
     {
-        //if jump was initiated, calculate initial velocity so that the jump-arc will apex at height defined by maxJumpHeight;
-        if (Input.GetButtonDown("Jump"))
-        {
-            
-            if (_mover.IsGrounded)
-            {
-                doubleJumped = false;
-                //formula derived from vf^2 = vi^2 + 2ad
-                _velocity.y = Mathf.Sqrt(2f * maxJumpHeight * -gravity);
 
-                //call event
-                if (OnJumpEvent != null)
-                {
-                    OnJumpEvent();
-                }
-            } else
+        //if jump was initiated, calculate initial velocity so that the jump-arc will apex at height defined by maxJumpHeight;
+        if (Input.GetButtonDown("Jump") && _mover.IsGrounded)
+        {
+            //formula derived from vf^2 = vi^2 + 2ad
+            _velocity.y = Mathf.Sqrt(2f * maxJumpHeight * -gravity);
+
+            //call event
+            if(OnJumpEvent != null)
             {
-                if (!doubleJumped && doubleJump)
-                {
-                    doubleJumped = true;
-                    _velocity.y = Mathf.Sqrt(2f * maxJumpHeight * -gravity);
-                    OnJumpEvent();
-                }
+                OnJumpEvent();
             }
-        } 
+        }
         
         //if jump is cancelled, set player velocity to be equal to initial velocity as defined by minJumpHeight.
         if (Input.GetButtonUp("Jump")  && _velocity.y > Mathf.Sqrt(2f * minJumpHeight * -gravity))
@@ -125,15 +108,5 @@ public class CharControl : MonoBehaviour {
         Vector3 theScale = transform.localScale;
         theScale.x *= -1;
         transform.localScale = theScale;
-    }
-
-    private void OnTriggerEnter2D(Collider2D c)
-    {
-        if (c.gameObject.CompareTag("Pickup"))
-        {
-            c.gameObject.SetActive(false);
-            doubleJump = true;
-            Debug.Log("Pickup!");
-        }
     }
 }

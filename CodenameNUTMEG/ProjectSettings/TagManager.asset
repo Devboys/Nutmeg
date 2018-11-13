@@ -6,7 +6,6 @@ TagManager:
   tags:
   - CameraBlock
   - DamageSource
-  - Pickup
   layers:
   - Default
   - TransparentFX
