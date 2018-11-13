@@ -4,7 +4,11 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 15
+<<<<<<< HEAD
   productGUID: fbe9a86ed0b114304bf24ef694491985
+=======
+  productGUID: 78a93837b649dc84887d83ea6e46bb97
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -66,7 +70,11 @@ PlayerSettings:
   androidBlitType: 0
   defaultIsNativeResolution: 1
   macRetinaSupport: 1
+<<<<<<< HEAD
   runInBackground: 1
+=======
+  runInBackground: 0
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   captureSingleScreen: 0
   muteOtherAudioSources: 0
   Prepare IOS For Recording: 0
@@ -118,14 +126,22 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
+<<<<<<< HEAD
   bundleVersion: 0.1
+=======
+  bundleVersion: 1.0
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
   xboxOneDisableKinectGpuReservation: 0
+<<<<<<< HEAD
   xboxOneEnable7thCore: 0
   isWsaHolographicRemotingEnabled: 0
+=======
+  xboxOneEnable7thCore: 1
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   vrSettings:
     cardboard:
       depthFormat: 0
@@ -151,8 +167,12 @@ PlayerSettings:
   resolutionScalingMode: 0
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
+<<<<<<< HEAD
   applicationIdentifier:
     Standalone: com.Company.ProductName
+=======
+  applicationIdentifier: {}
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   buildNumber: {}
   AndroidBundleVersionCode: 1
   AndroidMinSdkVersion: 16
@@ -167,7 +187,11 @@ PlayerSettings:
   CreateWallpaper: 0
   APKExpansionFiles: 0
   keepLoadedShadersAlive: 0
+<<<<<<< HEAD
   StripUnusedMeshComponents: 1
+=======
+  StripUnusedMeshComponents: 0
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   VertexChannelCompressionMask: 4054
   iPhoneSdkVersion: 988
   iOSTargetOSVersionString: 8.0
@@ -237,10 +261,17 @@ PlayerSettings:
   iOSRequireARKit: 0
   appleEnableProMotion: 0
   vulkanEditorSupport: 0
+<<<<<<< HEAD
   clonedFromGUID: 5f34be1353de5cf4398729fda238591b
   templatePackageId: com.unity.template.2d@1.0.1
   templateDefaultScene: Assets/Scenes/SampleScene.unity
   AndroidTargetArchitectures: 5
+=======
+  clonedFromGUID: 00000000000000000000000000000000
+  templatePackageId: 
+  templateDefaultScene: 
+  AndroidTargetArchitectures: 1
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
   AndroidKeystoreName: 
@@ -393,7 +424,10 @@ PlayerSettings:
   switchAllowsVideoCapturing: 1
   switchAllowsRuntimeAddOnContentInstall: 0
   switchDataLossConfirmation: 0
+<<<<<<< HEAD
   switchUserAccountLockEnabled: 0
+=======
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   switchSupportedNpadStyles: 3
   switchNativeFsCacheSize: 32
   switchIsHoldTypeHorizontal: 0
@@ -439,7 +473,11 @@ PlayerSettings:
   ps4RemotePlayKeyAssignment: -1
   ps4RemotePlayKeyMappingDir: 
   ps4PlayTogetherPlayerCount: 0
+<<<<<<< HEAD
   ps4EnterButtonAssignment: 1
+=======
+  ps4EnterButtonAssignment: 2
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   ps4ApplicationParam1: 0
   ps4ApplicationParam2: 0
   ps4ApplicationParam3: 0
@@ -459,7 +497,11 @@ PlayerSettings:
   ps4ReprojectionSupport: 0
   ps4UseAudio3dBackend: 0
   ps4SocialScreenEnabled: 0
+<<<<<<< HEAD
   ps4ScriptOptimizationLevel: 0
+=======
+  ps4ScriptOptimizationLevel: 2
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   ps4Audio3dVirtualSpeakerCount: 14
   ps4attribCpuUsage: 0
   ps4PatchPkgPath: 
@@ -523,7 +565,11 @@ PlayerSettings:
   psp2UseLibLocation: 0
   psp2InfoBarOnStartup: 0
   psp2InfoBarColor: 0
+<<<<<<< HEAD
   psp2ScriptOptimizationLevel: 0
+=======
+  psp2ScriptOptimizationLevel: 2
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   splashScreenBackgroundSourceLandscape: {fileID: 0}
   splashScreenBackgroundSourcePortrait: {fileID: 0}
   spritePackerPolicy: 
@@ -550,14 +596,22 @@ PlayerSettings:
   apiCompatibilityLevelPerPlatform: {}
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
+<<<<<<< HEAD
   metroPackageName: Template_2D
+=======
+  metroPackageName: CodenameNUTMEG
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
+<<<<<<< HEAD
   metroApplicationDescription: Template_2D
+=======
+  metroApplicationDescription: CodenameNUTMEG
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -604,7 +658,11 @@ PlayerSettings:
   XboxOneCapability: []
   XboxOneGameRating: {}
   XboxOneIsContentPackage: 0
+<<<<<<< HEAD
   XboxOneEnableGPUVariability: 0
+=======
+  XboxOneEnableGPUVariability: 1
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   XboxOneSockets: {}
   XboxOneSplashScreen: {fileID: 0}
   XboxOneAllowedProductIds: []
@@ -615,6 +673,7 @@ PlayerSettings:
     daydream:
       daydreamIconForeground: {fileID: 0}
       daydreamIconBackground: {fileID: 0}
+<<<<<<< HEAD
   cloudServicesEnabled:
     Collab: 1
     UNet: 1
@@ -623,6 +682,14 @@ PlayerSettings:
   cloudProjectId: 76076455-b93a-4b52-90a8-8f327b78a451
   projectName: CodenameNUTMEG
   organizationId: codename-nutmeg
+=======
+  cloudServicesEnabled: {}
+  facebookSdkVersion: 7.9.4
+  apiCompatibilityLevel: 2
+  cloudProjectId: 
+  projectName: 
+  organizationId: 
+>>>>>>> 8339c8fbf686a2eecb1c6485a374a04a13cb6598
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
   disableOldInputManagerSupport: 0
