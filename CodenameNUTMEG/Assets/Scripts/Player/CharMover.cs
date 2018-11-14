@@ -19,11 +19,23 @@ public class CharMover : MonoBehaviour {
 
     [HideInInspector] public Vector2 velocity;
 
-    //collision state
+    //collision state & collisionstate read-only properties.
     [HideInInspector] private CharacterCollisionState2D collisionState;
     [HideInInspector] public bool IsGrounded
     {
         get{ return collisionState.below; }
+    }
+    [HideInInspector] public bool CollidedLeft
+    {
+        get { return collisionState.left;  }
+    }
+    [HideInInspector] public bool CollidedRight
+    {
+        get { return collisionState.right; }
+    }
+    [HideInInspector] public bool CollidedAbove
+    {
+        get { return collisionState.above; }
     }
     [HideInInspector] public bool HasLanded
     {
@@ -37,6 +49,7 @@ public class CharMover : MonoBehaviour {
     {
         get { return (collisionState.left || collisionState.right); }
     }
+
 
 
 
