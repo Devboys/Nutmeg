@@ -69,9 +69,7 @@ public class CharControl : MonoBehaviour {
 
         //we call current-frame events after _mover.Move() so that we can use the post-movement collision state.
         if (_mover.HasLanded && OnLandEvent != null)
-        {
             OnLandEvent();
-        }
         //run-event should be called in the frame that movement goes from 0 to not-zero, as well as any frame where the player lands while moving.
         if ((!wasRunningLastFrame || _mover.HasLanded) && horizontalMove != 0 && _mover.IsGrounded && !_mover.HasCollidedHorizontal)
             OnRunStartEvent();
@@ -86,7 +84,6 @@ public class CharControl : MonoBehaviour {
         //if jump was initiated, calculate initial velocity so that the jump-arc will apex at height defined by maxJumpHeight;
         if (Input.GetButtonDown("Jump"))
         {
-            
             if (_mover.IsGrounded)
             {
                 doubleJumped = false;
@@ -95,9 +92,7 @@ public class CharControl : MonoBehaviour {
 
                 //call event
                 if (OnJumpEvent != null)
-                {
                     OnJumpEvent();
-                }
             } else
             {
                 if (!doubleJumped && doubleJump)

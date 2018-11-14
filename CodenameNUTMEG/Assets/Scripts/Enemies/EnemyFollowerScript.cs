@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyFollowerScript : MonoBehaviour {
 
     [SerializeField] private float aggroedMovespeed;
+    [SerializeField] private LayerMask groundMask;
 
     //cached target
     Transform targetToFollow = null;
@@ -12,6 +13,9 @@ public class EnemyFollowerScript : MonoBehaviour {
     //component cache.
     private Transform _transform;
     private Rigidbody2D _rigidbody;
+
+    //movement
+    private bool goingRight;
 
     void Start()
     {
@@ -21,8 +25,20 @@ public class EnemyFollowerScript : MonoBehaviour {
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.CompareTag("Player"))
-            targetToFollow = collision.GetComponent<Transform>();
+        if (collision.CompareTag("Player"))
+        {
+            Transform targetTransform = collision.GetComponent<Transform>();
+
+            float rayDistance = Vector2.Distance(targetTransform.position, _transform.position);
+            Vector2 rayDirection = (targetTransform.position - _transform.position);
+            rayDirection.Normalize();
+
+            //cast ray to player to check if player is standing behind some obstacle.
+            RaycastHit2D rayHit = Physics2D.Raycast(_transform.position, rayDirection, rayDistance, groundMask);
+
+            if(!rayHit) //only move toward players that are visible(no ray hits)
+                targetToFollow = targetTransform;
+        }
     }
 
     public void OnTriggerExit2D(Collider2D collision)
@@ -39,11 +55,27 @@ public class EnemyFollowerScript : MonoBehaviour {
     {
         if (targetToFollow != null)
         {
-            _transform.LookAt(targetToFollow.position);
-            transform.Rotate(new Vector3(0, -90, 0), Space.Self);
+            //_transform.LookAt(targetToFollow.position);
+            //transform.Rotate(new Vector3(0, -90, 0), Space.Self);
 
-            if (Vector3.Distance(_transform.position, targetToFollow.position) > 0.05f);
-            transform.Translate(new Vector3(aggroedMovespeed * Time.deltaTime, 0, 0));
+            float distX = _transform.position.x - targetToFollow.position.x;
+
+            if (distX > 0 && !goingRight)
+            {
+                goingRight = true;
+                aggroedMovespeed *= -1;
+
+            }
+            if (distX < 0 && goingRight)
+            {
+                goingRight = false;
+                aggroedMovespeed *= -1;
+            }
+
+
+            if (Mathf.Abs(distX) > 0.05f)
+                transform.Translate(new Vector3(aggroedMovespeed * Time.deltaTime, 0, 0));
+
         }
     }
 }

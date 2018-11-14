@@ -131,14 +131,14 @@ public class CharMover : MonoBehaviour {
 
         for (int i = 0; i < numHorizontalRays; i++)
         {
-            Vector2 ray = initialRayOrigin;
-            ray.x += rayWidth * i;
+            Vector2 rayOrigin = initialRayOrigin;
+            rayOrigin.x += rayWidth * i;
 
-            RaycastHit2D rayHit = Physics2D.Raycast(ray, rayDirection, rayDistance, groundMask);
+            RaycastHit2D rayHit = Physics2D.Raycast(rayOrigin, rayDirection, rayDistance, groundMask);
 
             if (rayHit)
             {
-                deltaMovement.y = rayHit.point.y - ray.y;
+                deltaMovement.y = rayHit.point.y - rayOrigin.y;
                 rayDistance = Mathf.Abs(deltaMovement.y);
 
                 if (isGoingUp)
