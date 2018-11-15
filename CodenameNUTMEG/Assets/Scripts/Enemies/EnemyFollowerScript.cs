@@ -8,7 +8,7 @@ public class EnemyFollowerScript : MonoBehaviour {
     [SerializeField] private LayerMask groundMask;
 
     //cached target
-    Transform targetToFollow = null;
+    public Transform targetToFollow = null;
 
     //component cache.
     private Transform _transform;
@@ -41,6 +41,24 @@ public class EnemyFollowerScript : MonoBehaviour {
         }
     }
 
+    public void OnTriggerStay2D(Collider2D collision)
+    {
+        if (targetToFollow == null && collision.CompareTag("Player"))
+        {
+            Transform targetTransform = collision.GetComponent<Transform>();
+
+            float rayDistance = Vector2.Distance(targetTransform.position, _transform.position);
+            Vector2 rayDirection = (targetTransform.position - _transform.position);
+            rayDirection.Normalize();
+
+            //cast ray to player to check if player is standing behind some obstacle.
+            RaycastHit2D rayHit = Physics2D.Raycast(_transform.position, rayDirection, rayDistance, groundMask);
+
+            if (!rayHit) //only move toward players that are visible(no ray hits)
+                targetToFollow = targetTransform;
+        }
+    }
+
     public void OnTriggerExit2D(Collider2D collision)
     {
         if (targetToFollow != null && collision.GetComponent<Transform>() == targetToFollow)
@@ -51,7 +69,7 @@ public class EnemyFollowerScript : MonoBehaviour {
 
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (targetToFollow != null)
         {
@@ -74,7 +92,7 @@ public class EnemyFollowerScript : MonoBehaviour {
 
 
             if (Mathf.Abs(distX) > 0.05f)
-                transform.Translate(new Vector3(aggroedMovespeed * Time.deltaTime, 0, 0));
+                transform.Translate(new Vector3(aggroedMovespeed*Time.fixedDeltaTime, 0, 0));
 
         }
     }
