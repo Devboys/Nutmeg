@@ -8,6 +8,7 @@ public class PlayerHealthHandler : MonoBehaviour {
     [Header("Values")]
     [SerializeField] private int initHealth = 3;
     [SerializeField] private int maxHealth = 3;
+    [SerializeField] private bool invincible;
 
     public event Action<int> OnHealthChangedEvent;
 
@@ -30,14 +31,17 @@ public class PlayerHealthHandler : MonoBehaviour {
 
     public void ModHealth(int amount)
     {
-        currentHealth += amount;
-
-        if (currentHealth > maxHealth)
-            currentHealth = maxHealth;
-
-        if(currentHealth <= 0)
+        if (!invincible)
         {
-            Die();
+            currentHealth += amount;
+
+            if (currentHealth > maxHealth)
+                currentHealth = maxHealth;
+
+            if (currentHealth <= 0)
+            {
+                Die();
+            }
         }
     }
 

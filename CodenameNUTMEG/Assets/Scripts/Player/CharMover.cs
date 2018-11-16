@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Collider2D))]
 public class CharMover : MonoBehaviour {
 
     [SerializeField] private LayerMask groundMask; //which layers count should be collided with.
     [SerializeField] private int numHorizontalRays = 3;
     [SerializeField] private int numVerticalRays = 3;
     [SerializeField] public float skinWidth = 0.02f;
+
+    [HideInInspector] public Vector2 velocity;
 
     //component cache.
     private BoxCollider2D _boxCollider;
@@ -16,8 +19,6 @@ public class CharMover : MonoBehaviour {
     private RayCastOrigins rayOrigins;
     private float rayHeight;
     private float rayWidth;
-
-    [HideInInspector] public Vector2 velocity;
 
     //collision state & collisionstate read-only properties.
     [HideInInspector] private CharacterCollisionState2D collisionState;

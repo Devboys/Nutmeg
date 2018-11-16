@@ -2019,6 +2019,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   initHealth: 3
   maxHealth: 3
+  invincible: 0
 --- !u!61 &873021644
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2076,14 +2077,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 8
+  gravity: -25
   maxJumpHeight: 3
   minJumpHeight: 0.5
-  gravity: -25
   inAirDamping: 5
   groundDamping: 20
+  knockHeight: 1
+  knockbackTime: 0.2
+  knockbackSpeed: 10
+  linearKnock: 0
   doubleJump: 0
-  doubleJumped: 0
   wallJump: 0
+  doubleJumped: 0
 --- !u!114 &873021648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2097,7 +2102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   groundMask:
     serializedVersion: 2
-    m_Bits: 1079
+    m_Bits: 55
   numHorizontalRays: 3
   numVerticalRays: 3
   skinWidth: 0.02
@@ -2565,7 +2570,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!61 &1032333984
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2664,7 +2669,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1032333983}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.92, y: -4.81, z: 0}
+  m_LocalPosition: {x: 0.63, y: -3.54, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -3979,6 +3984,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 59575b99ef988204fbd6c91ade8896d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  invincibleTimer: 0.5
 --- !u!61 &1504598792
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5381,7 +5387,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1951058391
 Transform:
   m_ObjectHideFlags: 0

@@ -4,11 +4,37 @@ using UnityEngine;
 
 public class HitboxScript : MonoBehaviour {
 
+    public float invincibleTimer;
+
+    //Component cache
+    PlayerHealthHandler healthHandler;
+    CharControl controller;
+
+    private bool inReelingState;
+    private float reelingTimer;
+
+    private void Start()
+    {
+        healthHandler = GetComponentInParent<PlayerHealthHandler>();
+        controller = GetComponentInParent<CharControl>();
+    }
+
+    public void Update()
+    {
+        if (reelingTimer > 0)
+            reelingTimer -= Time.deltaTime;
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("DamageSource") && !collision.isTrigger)
         {
-            this.GetComponentInParent<PlayerHealthHandler>().ModHealth(-1);
+            if (reelingTimer <= 0)
+            {
+                controller.BeginDamageKnockback(collision.transform.position);
+                healthHandler.ModHealth(-1);
+                reelingTimer = invincibleTimer;
+            }
         }
     }
 
