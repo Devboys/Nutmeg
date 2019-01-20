@@ -16,6 +16,13 @@ public class CharControl : MonoBehaviour {
     [SerializeField] private float minJumpHeight = 0.5f;
     [SerializeField] private float inAirDamping = 5f;
     [SerializeField] private float groundDamping = 20f;
+    [SerializeField] private float maxGravity = -25f;
+
+    [Header("Wall Slide")]
+    [SerializeField] [Range(0f, 1f)] private float slideGravityDamping = 0;
+    [SerializeField] private float slideJumpHeight = 0.3f;
+    [SerializeField] private float slideJumpLength = 5f;
+
 
     [Header("Knockback")]
     [SerializeField] private float knockHeight = 1f;
@@ -39,8 +46,11 @@ public class CharControl : MonoBehaviour {
 
     public bool doubleJumped;
 
+    public bool isSliding;
+
     //component cache
     private CharMover _mover;
+    private PlayerHealthHandler _healthHandler;
 
     //movement events.
     public event Action OnRunStartEvent;
@@ -51,6 +61,7 @@ public class CharControl : MonoBehaviour {
     private void Start()
     {
         _mover = this.GetComponent<CharMover>();
+        _healthHandler = this.GetComponent<PlayerHealthHandler>();
     }
 
     private void Update()
@@ -61,8 +72,25 @@ public class CharControl : MonoBehaviour {
         if (_mover.IsGrounded && !inKnockback)
             _velocity.y = 0;
 
-        //Apply gravity
-        _velocity.y += gravity * Time.deltaTime;
+        if (_velocity.y < 0)
+        {
+            //Apply gravity
+            if (_velocity.y > maxGravity)
+            {
+                float yAccel = gravity;
+
+                if (isSliding) yAccel = yAccel * slideGravityDamping;
+
+                _velocity.y += yAccel * Time.deltaTime;
+            }
+        }
+        else if(_velocity.y > maxGravity)
+        {
+            _velocity.y += gravity * Time.deltaTime;
+        }
+
+        
+        
 
         if (!inKnockback)
         {
@@ -101,9 +129,27 @@ public class CharControl : MonoBehaviour {
 
         _velocity = _mover.velocity;
 
+        //handle wall slide
+        if (_mover.HasCollidedHorizontal && !_mover.IsGrounded && !isSliding)
+        {
+            isSliding = true;
+            _velocity.y = (_velocity.y > maxGravity * slideGravityDamping) ? _velocity.y : maxGravity * slideGravityDamping;
+        }
+        else if(!_mover.HasCollidedHorizontal && !_mover.IsGrounded && isSliding)
+        {
+            isSliding = false;
+        }
+
         //we call current-frame events after _mover.Move() so that we can use the post-movement collision state.
-        if (_mover.HasLanded && OnLandEvent != null)
-            OnLandEvent();
+        if (_mover.HasLanded)
+        {
+            doubleJumped = false;
+            isSliding = false;
+
+            if(OnLandEvent != null)
+                OnLandEvent();
+        }
+
         //run-event should be called in the frame that movement goes from 0 to not-zero, as well as any frame where the player lands while moving.
         if ((!wasRunningLastFrame || _mover.HasLanded) && horizontalMove != 0 && _mover.IsGrounded && !_mover.HasCollidedHorizontal)
             OnRunStartEvent();
@@ -132,8 +178,6 @@ public class CharControl : MonoBehaviour {
         {
             if (_mover.IsGrounded)
             {
-                doubleJumped = false;
-
                 //formula derived from vf^2 = vi^2 + 2ad
                 _velocity.y = Mathf.Sqrt(2f * maxJumpHeight * -gravity);
 
@@ -141,7 +185,7 @@ public class CharControl : MonoBehaviour {
                 if (OnJumpEvent != null)
                     OnJumpEvent();
             }
-            else
+            else if(!isSliding)
             {
                 if (!doubleJumped && doubleJump)
                 {
@@ -149,6 +193,11 @@ public class CharControl : MonoBehaviour {
                     _velocity.y = Mathf.Sqrt(2f * maxJumpHeight * -gravity);
                     OnJumpEvent();
                 }
+            }
+            else if (isSliding)
+            {
+                _velocity.x = 1f;
+                _velocity.y = Mathf.Sqrt(2f * slideJumpHeight * -gravity);
             }
         }
         
@@ -179,8 +228,14 @@ public class CharControl : MonoBehaviour {
             doubleJump = true;
             Debug.Log("Pickup!");
         }
+
+        else if (c.gameObject.CompareTag("Checkpoint"))
+        {
+            _healthHandler.SetCheckpoint(c.transform);
+        }
     }
 
+    //TODO: Finish
     public void ResetPlayer()
     {
         _velocity = Vector3.zero;
