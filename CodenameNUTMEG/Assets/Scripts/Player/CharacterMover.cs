@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
-public class CharMover : MonoBehaviour {
+public class CharacterMover : MonoBehaviour {
 
     [SerializeField] private LayerMask groundMask; //which layers count should be collided with.
     [SerializeField] private int numHorizontalRays = 3;
@@ -51,9 +51,6 @@ public class CharMover : MonoBehaviour {
         get { return (collisionState.left || collisionState.right); }
     }
 
-
-
-
     public void Awake()
     {
         _boxCollider = this.GetComponent<BoxCollider2D>();
@@ -63,7 +60,7 @@ public class CharMover : MonoBehaviour {
         collisionState = new CharacterCollisionState2D();
     }
 
-    public void Move(Vector3 deltaMovement, bool isJumping)
+    public void Move(Vector3 deltaMovement)
     {
         collisionState.wasGroundedLastFrame = collisionState.below;
         collisionState.Reset();

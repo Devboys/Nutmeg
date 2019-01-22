@@ -8,7 +8,7 @@ public class HitboxScript : MonoBehaviour {
 
     //Component cache
     PlayerHealthHandler healthHandler;
-    CharControl controller;
+    CharacterController controller;
 
     private bool inReelingState;
     private float reelingTimer;
@@ -16,7 +16,7 @@ public class HitboxScript : MonoBehaviour {
     private void Start()
     {
         healthHandler = GetComponentInParent<PlayerHealthHandler>();
-        controller = GetComponentInParent<CharControl>();
+        controller = GetComponentInParent<CharacterController>();
     }
 
     public void Update()
