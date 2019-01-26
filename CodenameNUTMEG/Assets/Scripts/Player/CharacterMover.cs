@@ -104,9 +104,10 @@ public class CharacterMover : MonoBehaviour {
     {
         float rayDistance = wallCheckWidth;
 
+        wallOnRight = wallOnLeft = false;
+
         for (int i = 0; i < numVerticalRays; i++)
         {
-            wallOnRight = wallOnLeft = false;
 
             Vector2 rightRay = rayOrigins.bottomRight;
             rightRay.y += i * rayHeight;
@@ -117,10 +118,16 @@ public class CharacterMover : MonoBehaviour {
             RaycastHit2D leftHit = Physics2D.Raycast(leftRay, Vector2.left, rayDistance, groundMask);
 
             if (rightHit)
+            {
                 wallOnRight = true;
+                break;
+            }
 
             if (leftHit)
+            {
                 wallOnLeft = true;
+                break;
+            }
 
 
         }
