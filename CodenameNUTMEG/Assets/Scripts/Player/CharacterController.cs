@@ -23,6 +23,7 @@ public class CharacterController : MonoBehaviour {
     [SerializeField] [Range(0f, 1f)] private float slideGravityDamping = 0;
     [SerializeField] private float slideJumpHeight = 0.3f;
     [SerializeField] private float slideJumpLength = 5f;
+    [SerializeField] private float maxSlideGravity = -5f;
 
 
     [Header("Knockback")]
@@ -58,6 +59,7 @@ public class CharacterController : MonoBehaviour {
     private bool knockRight;
 
     //Player state
+    [Header("State Debug")]
     [SerializeField][ReadOnly] private bool isSliding;
     [SerializeField][ReadOnly] private bool hasDoubleJumped;
 
@@ -147,6 +149,12 @@ public class CharacterController : MonoBehaviour {
             if (knockTimer >= knockbackTime)
             {
                 inKnockback = false;
+
+                horizontalMove = Input.GetAxis("Horizontal");
+                if(Math.Sign(horizontalMove) != Math.Sign(_velocity.x))
+                {
+                    _velocity.x = 0;
+                } 
                 knockTimer = 0;
             }
         }
@@ -166,12 +174,14 @@ public class CharacterController : MonoBehaviour {
                     OnJumpEvent();
             }
             //wall jump
-            else if (_mover.HasCollidedHorizontal && wallJump)
+            else if ((_mover.IsRightOfWall || _mover.IsLeftOfWall) && wallJump)
             {
-                int sign = (_mover.CollidedLeft) ? 1 : -1;
+                int sign = (_mover.IsRightOfWall) ? -1 : 1;
+
                 _velocity.x = slideJumpLength * sign;
                 _velocity.y = Mathf.Sqrt(2f * slideJumpHeight * -gravity);
                 inKnockback = true;
+                hasDoubleJumped = false;
 
                 if(OnWallJumpEvent != null)
                     OnWallJumpEvent();
@@ -196,11 +206,16 @@ public class CharacterController : MonoBehaviour {
 
     private void HandleGravity()
     {
-        if (_velocity.y > maxGravity)
+        float currentMaxGravity = isSliding ? maxSlideGravity : maxGravity;
+
+        if (_velocity.y > currentMaxGravity)
         {
             float yAccel = (isSliding && _velocity.y < 0) ? gravity * slideGravityDamping : gravity;
             _velocity.y += yAccel * Time.deltaTime;
         }
+
+        if (_velocity.y < currentMaxGravity)
+            _velocity.y = currentMaxGravity;
 
     }
 
@@ -218,8 +233,9 @@ public class CharacterController : MonoBehaviour {
                 isSliding = true;
             }
 
-            else if (!_mover.HasCollidedHorizontal)
+            else if (!_mover.HasCollidedHorizontal && isSliding)
             {
+
                 isSliding = false;
             }
         }
@@ -262,9 +278,20 @@ public class CharacterController : MonoBehaviour {
     {
         if (c.gameObject.CompareTag("Pickup"))
         {
+            string powerUp = c.GetComponent<I_PU_Base>().GetPowerUp();
+
+            switch (powerUp)
+            {
+                case "Double Jump":
+                    doubleJump = true;
+                    break;
+                case "Wall Jump":
+                    wallJump = true;
+                    break;
+            }
+
+            Debug.Log("pickup");
             c.gameObject.SetActive(false);
-            doubleJump = true;
-            Debug.Log("Pickup!");
         }
 
         else if (c.gameObject.CompareTag("Checkpoint"))

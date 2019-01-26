@@ -5,10 +5,12 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class CharacterMover : MonoBehaviour {
 
-    [SerializeField] private LayerMask groundMask; //which layers count should be collided with.
+    [SerializeField] private LayerMask groundMask; //which layers count toward collisions.
     [SerializeField] private int numHorizontalRays = 3;
     [SerializeField] private int numVerticalRays = 3;
     [SerializeField] public float skinWidth = 0.02f;
+
+    [SerializeField] private float wallCheckWidth;
 
     [HideInInspector] public Vector2 velocity;
 
@@ -19,6 +21,10 @@ public class CharacterMover : MonoBehaviour {
     private RayCastOrigins rayOrigins;
     private float rayHeight;
     private float rayWidth;
+
+    //wall check
+    [ReadOnly][SerializeField] private bool wallOnRight;
+    [ReadOnly][SerializeField] private bool wallOnLeft;
 
     //collision state & collisionstate read-only properties.
     [HideInInspector] private CharacterCollisionState2D collisionState;
@@ -50,6 +56,14 @@ public class CharacterMover : MonoBehaviour {
     {
         get { return (collisionState.left || collisionState.right); }
     }
+    [HideInInspector] public bool IsRightOfWall
+    {
+        get { return wallOnRight; }
+    }
+    [HideInInspector] public bool IsLeftOfWall
+    {
+        get { return wallOnLeft; }
+    }
 
     public void Awake()
     {
@@ -67,6 +81,8 @@ public class CharacterMover : MonoBehaviour {
 
         PrimeRayCastOrigins();
 
+        CheckIsNextToWall();
+
         //Do movement & update collisionState for the current frame.
         if (deltaMovement.x != 0f)
             MoveHorizontal(ref deltaMovement);
@@ -82,6 +98,52 @@ public class CharacterMover : MonoBehaviour {
         deltaMovement.z = 0;
         transform.Translate(deltaMovement, Space.World);
         velocity = deltaMovement / Time.deltaTime;
+    }
+
+    private void CheckIsNextToWall()
+    {
+        float rayDistance = wallCheckWidth;
+
+        for (int i = 0; i < numVerticalRays; i++)
+        {
+            wallOnRight = wallOnLeft = false;
+
+            Vector2 rightRay = rayOrigins.bottomRight;
+            rightRay.y += i * rayHeight;
+            Vector2 leftRay = rayOrigins.bottomLeft;
+            leftRay.y += i * rayHeight;
+
+            RaycastHit2D rightHit = Physics2D.Raycast(rightRay, Vector2.right, rayDistance, groundMask);
+            RaycastHit2D leftHit = Physics2D.Raycast(leftRay, Vector2.left, rayDistance, groundMask);
+
+            if (rightHit)
+                wallOnRight = true;
+
+            if (leftHit)
+                wallOnLeft = true;
+
+
+        }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.cyan;
+        float rayDistance = wallCheckWidth;
+        for (int i = 0; i < numVerticalRays; i++)
+        {
+
+            Vector2 rightRay = rayOrigins.bottomRight;
+            rightRay.y += i * rayHeight;
+            Vector2 leftRay = rayOrigins.bottomLeft;
+            leftRay.y += i * rayHeight;
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawRay(rightRay, Vector2.right * rayDistance);
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawRay(leftRay, Vector2.left * rayDistance);
+        }
     }
 
     #region movement methods
