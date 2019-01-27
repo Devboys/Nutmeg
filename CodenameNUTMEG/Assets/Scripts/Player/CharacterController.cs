@@ -11,26 +11,32 @@ public class CharacterController : MonoBehaviour {
     [Header("Running")]
     [SerializeField] private float moveSpeed = 8f;
 
-    [Header("Jumping")]
+    [Header("Gravity & Damping")]
     [SerializeField] private float gravity = -25f;
+    [SerializeField] private float maxGravity = -25f;
+    [SerializeField] private float groundDamping = 20f;
+    [SerializeField] private float inAirDamping = 5f;
+
+    [Header("Jump")]
     [SerializeField] private float maxJumpHeight = 3f;
     [SerializeField] private float minJumpHeight = 0.5f;
-    [SerializeField] private float inAirDamping = 5f;
-    [SerializeField] private float groundDamping = 20f;
-    [SerializeField] private float maxGravity = -25f;
+
+    [Header("Dash")]
+    [SerializeField] private float dashSpeed = 25f;
+    [SerializeField] private float dashDuration = 0.5f;
+    
 
     [Header("Wall Slide")]
     [SerializeField] [Range(0f, 1f)] private float slideGravityDamping = 0;
     [SerializeField] private float slideJumpHeight = 0.3f;
     [SerializeField] private float slideJumpLength = 5f;
+    [SerializeField] private float wallJumpDuration = 0.2f;
     [SerializeField] private float maxSlideGravity = -5f;
 
-
-    [Header("Knockback")]
+    [Header("Damage Knockback")]
     [SerializeField] private float knockHeight = 1f;
-    [SerializeField] private float knockbackTime = 0.5f;
+    [SerializeField] private float knockbackDuration = 0.5f;
     [SerializeField] private float knockbackSpeed = 1f;
-    [SerializeField] private bool linearKnock;
 
     [Header("Abilities")]
     [SerializeField] private bool doubleJump;
@@ -55,13 +61,23 @@ public class CharacterController : MonoBehaviour {
 
     //Knockback variables
     private float knockTimer;
-    private bool inKnockback;
-    private bool knockRight;
+    private float currentKnockDuration;
 
     //Player state
-    [Header("State Debug")]
+    [Header("State Variables (Read Only)")]
     [SerializeField][ReadOnly] private bool isSliding;
     [SerializeField][ReadOnly] private bool hasDoubleJumped;
+    [SerializeField][ReadOnly] private bool hasDashed;
+
+    [Header("Knockback State(Read Only")]
+    [SerializeField][ReadOnly] private bool inDashKnockback;
+    [SerializeField][ReadOnly] private bool inDamageKnockback;
+    [SerializeField][ReadOnly] private bool inWallJumpKnockback;
+
+    private bool inAnyKnockback
+    {
+        get { return inDamageKnockback || inWallJumpKnockback || inDashKnockback; }
+    }
 
     //Component Cache
     private CharacterMover _mover;
@@ -88,14 +104,19 @@ public class CharacterController : MonoBehaviour {
         bool wasRunningLastFrame = (horizontalMove != 0);
 
         //velocity is nulled before gravity to maintain grounded status for each frame. If check is placed after gravity, unexpected jumping behaviour occurs in game.
-        if (_mover.IsGrounded && !inKnockback)
+        if (_mover.IsGrounded && !inAnyKnockback)
             _velocity.y = 0;
 
         HandleGravity();
         HandleHorizontalMovement();
 
+        HandleDash();
+
         //jump handled after gravity increment because jump calculation expects this.
-        HandleJump();
+        if (!inDashKnockback)
+        {
+            HandleJump();
+        }
 
         //pass the velocity, adjusted for deltaTime, to the mover for collision detection and other physics interactions.
         _mover.Move(_velocity * Time.deltaTime);
@@ -103,28 +124,27 @@ public class CharacterController : MonoBehaviour {
         //apply changes to velocity
         _velocity = _mover.velocity;
 
-        //we update state after movement so that we can use post-movement collision state.
+        //update state after movement so that we can use post-movement collision state.
         HandleStateUpdate(wasRunningLastFrame);
     }
 
     public void BeginDamageKnockback(Vector2 damageSourcePosition)
     {
-        inKnockback = true;
-        knockRight = damageSourcePosition.x < transform.position.x;
+        inDamageKnockback= true;
+        inDashKnockback = inWallJumpKnockback = false;
 
-        if (!linearKnock)
-        {
-            float knockY = Mathf.Sqrt(2f * knockHeight * -gravity);
-            float knockX = knockRight ? knockbackSpeed : -knockbackSpeed;
-            Vector2 knockbackVector = new Vector2(knockX, knockY);
-            _velocity = knockbackVector;
-        }
+        bool knockRight = damageSourcePosition.x < transform.position.x;
+
+        float knockY = Mathf.Sqrt(2f * knockHeight * -gravity);
+        float knockX = knockRight ? knockbackSpeed : -knockbackSpeed;
+
+        EnterUncontrollableState(knockbackDuration, new Vector2(knockX, knockY));
     }
 
     #region Control Handlers
     private void HandleHorizontalMovement()
     {
-        if (!inKnockback)
+        if (!inAnyKnockback)
         {
             horizontalMove = Input.GetAxisRaw("Horizontal");
 
@@ -139,24 +159,36 @@ public class CharacterController : MonoBehaviour {
         }
         else
         {
-            //if (linearKnock)
-            //{
-            //    _velocity = new Vector2(knockRight ? knockbackSpeed : -knockbackSpeed, knockHeight);
-            //}
-
             knockTimer += Time.deltaTime;
 
-            if (knockTimer >= knockbackTime)
+            if (knockTimer >= currentKnockDuration)
             {
-                inKnockback = false;
+                inDamageKnockback = inDashKnockback = inWallJumpKnockback = false;
 
                 horizontalMove = Input.GetAxis("Horizontal");
+
                 if(Math.Sign(horizontalMove) != Math.Sign(_velocity.x))
                 {
                     _velocity.x = 0;
-                } 
-                knockTimer = 0;
+                }
+                else
+                {
+                    _velocity.x = moveSpeed * horizontalMove;
+                }
             }
+        }
+    }
+
+    private void HandleDash()
+    {
+        if (Input.GetButtonDown("Dash"))
+        {
+            inDashKnockback = true;
+            int sign = facingRight ? -1 : 1;
+
+            float dashX = dashSpeed * sign;
+            float dashY = 0;
+            EnterUncontrollableState(dashDuration, new Vector2(dashX, dashY));
         }
     }
 
@@ -176,12 +208,14 @@ public class CharacterController : MonoBehaviour {
             //wall jump
             else if ((_mover.IsRightOfWall || _mover.IsLeftOfWall) && wallJump)
             {
-                int sign = (_mover.IsRightOfWall) ? -1 : 1;
-
-                _velocity.x = slideJumpLength * sign;
-                _velocity.y = Mathf.Sqrt(2f * slideJumpHeight * -gravity);
-                inKnockback = true;
                 hasDoubleJumped = false;
+
+                inWallJumpKnockback = true;
+                int sign = (_mover.IsRightOfWall) ? -1 : 1;
+                float wallJumpX = slideJumpLength * sign;
+                float wallJumpY = Mathf.Sqrt(2f * slideJumpHeight * -gravity);
+
+                EnterUncontrollableState(wallJumpDuration, new Vector2(wallJumpX, wallJumpY));
 
                 if(OnWallJumpEvent != null)
                     OnWallJumpEvent();
@@ -208,7 +242,7 @@ public class CharacterController : MonoBehaviour {
     {
         float currentMaxGravity = isSliding ? maxSlideGravity : maxGravity;
 
-        if (_velocity.y > currentMaxGravity)
+        if (_velocity.y > currentMaxGravity && !inDashKnockback)
         {
             float yAccel = (isSliding && _velocity.y < 0) ? gravity * slideGravityDamping : gravity;
             _velocity.y += yAccel * Time.deltaTime;
@@ -244,6 +278,11 @@ public class CharacterController : MonoBehaviour {
             isSliding = false;
         }
 
+        if(inAnyKnockback && _mover.HasCollidedHorizontal)
+        {
+            inDashKnockback = false;
+        }
+
         if (_mover.HasLanded)
         {
             hasDoubleJumped = false;
@@ -259,6 +298,21 @@ public class CharacterController : MonoBehaviour {
             OnRunStartEvent();
         else if ((wasRunningLastFrame && horizontalMove == 0 && _mover.IsGrounded) || _mover.HasLeftGround || _mover.IsGrounded && _mover.HasCollidedHorizontal)
             OnRunEndEvent();
+    }
+    #endregion
+
+    #region Internal Utility
+    private void EnterUncontrollableState(float duration, Vector2 movementVector)
+    {
+        currentKnockDuration = duration;
+        _velocity = movementVector;
+
+        knockTimer = 0;
+    }
+
+    private void ResetKnockbackState()
+    {
+        inDashKnockback = inDamageKnockback = inWallJumpKnockback = false;
     }
     #endregion
 
@@ -290,7 +344,6 @@ public class CharacterController : MonoBehaviour {
                     break;
             }
 
-            Debug.Log("pickup");
             c.gameObject.SetActive(false);
         }
 
