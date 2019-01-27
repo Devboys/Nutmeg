@@ -41,6 +41,7 @@ public class CharacterController : MonoBehaviour {
     [Header("Abilities")]
     [SerializeField] private bool doubleJump;
     [SerializeField] private bool wallJump;
+    [SerializeField] private bool dash;
 
     #endregion
 
@@ -181,8 +182,10 @@ public class CharacterController : MonoBehaviour {
 
     private void HandleDash()
     {
-        if (Input.GetButtonDown("Dash"))
+        if (Input.GetButtonDown("Dash") && !hasDashed && dash)
         {
+            hasDashed = true;
+
             inDashKnockback = true;
             int sign = facingRight ? -1 : 1;
 
@@ -209,6 +212,7 @@ public class CharacterController : MonoBehaviour {
             else if ((_mover.IsRightOfWall || _mover.IsLeftOfWall) && wallJump)
             {
                 hasDoubleJumped = false;
+                hasDashed = false;
 
                 inWallJumpKnockback = true;
                 int sign = (_mover.IsRightOfWall) ? -1 : 1;
@@ -286,6 +290,7 @@ public class CharacterController : MonoBehaviour {
         if (_mover.HasLanded)
         {
             hasDoubleJumped = false;
+            hasDashed = false;
             isSliding = false;
 
             if (OnLandEvent != null)
@@ -314,7 +319,6 @@ public class CharacterController : MonoBehaviour {
     {
         inDashKnockback = inDamageKnockback = inWallJumpKnockback = false;
     }
-    #endregion
 
     //flips player sprite.
     private void Flip()
@@ -327,6 +331,7 @@ public class CharacterController : MonoBehaviour {
         theScale.x *= -1;
         transform.localScale = theScale;
     }
+    #endregion
 
     private void OnTriggerEnter2D(Collider2D c)
     {
@@ -342,9 +347,14 @@ public class CharacterController : MonoBehaviour {
                 case "Wall Jump":
                     wallJump = true;
                     break;
+                case "Dash":
+                    dash = true;
+                    break;
             }
 
             c.gameObject.SetActive(false);
+
+            Debug.Log("pickup!");
         }
 
         else if (c.gameObject.CompareTag("Checkpoint"))
