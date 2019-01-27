@@ -182,7 +182,7 @@ public class CharacterController : MonoBehaviour {
 
     private void HandleDash()
     {
-        if (Input.GetButtonDown("Dash") && !hasDashed && dash)
+        if (Input.GetAxis("Dash") != 0 && !hasDashed && dash)
         {
             hasDashed = true;
 
