@@ -83,6 +83,7 @@ public class CharacterController : MonoBehaviour {
     //Component Cache
     private CharacterMover _mover;
     private PlayerHealthHandler _healthHandler;
+    private Animator _animator;
 
     #region Movement Events
     public event Action OnRunStartEvent;
@@ -98,6 +99,16 @@ public class CharacterController : MonoBehaviour {
     {
         _mover = this.GetComponent<CharacterMover>();
         _healthHandler = this.GetComponent<PlayerHealthHandler>();
+        _animator = this.GetComponent<Animator>();
+
+        //internal event subscribes
+        OnJumpEvent += () => { _animator.SetBool("isJumping", true); }; //this is a lambda expression subscribe.
+        OnLandEvent += () => { _animator.SetBool("isJumping", false); };
+    }
+
+    private void doThings()
+    {
+        _animator.SetBool("isJumping", true);
     }
 
     private void Update()

@@ -133,26 +133,6 @@ public class CharacterMover : MonoBehaviour {
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.cyan;
-        float rayDistance = wallCheckWidth;
-        for (int i = 0; i < numVerticalRays; i++)
-        {
-
-            Vector2 rightRay = rayOrigins.bottomRight;
-            rightRay.y += i * rayHeight;
-            Vector2 leftRay = rayOrigins.bottomLeft;
-            leftRay.y += i * rayHeight;
-
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(rightRay, Vector2.right * rayDistance);
-
-            Gizmos.color = Color.green;
-            Gizmos.DrawRay(leftRay, Vector2.left * rayDistance);
-        }
-    }
-
     #region movement methods
     private void MoveHorizontal(ref Vector3 deltaMovement)
     {
