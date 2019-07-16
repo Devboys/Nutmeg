@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerSFXHandler : MonoBehaviour {
 
     [Header("Target")]
-    [SerializeField] private CharControl targetController;
+    [SerializeField] private CharacterController targetController;
 
     [Header("Audio Files")]
     [SerializeField] private AudioClip jumpSound;

@@ -10,6 +10,9 @@ public class PlayerHealthHandler : MonoBehaviour {
     [SerializeField] private int maxHealth = 3;
     [SerializeField] private bool invincible;
 
+    [Header("Respawn")]
+    [SerializeField] private Transform currentCheckpoint;
+
     public event Action<int> OnHealthChangedEvent;
 
     private int _currentHealth; //currenthealth-value.
@@ -48,8 +51,13 @@ public class PlayerHealthHandler : MonoBehaviour {
     private void Die()
     {
         //temp die mechanism
-        transform.position = Vector3.zero;
+        transform.position = (currentCheckpoint == null) ? Vector3.zero : currentCheckpoint.position;
         currentHealth = initHealth;
+    }
+
+    public void SetCheckpoint(Transform c)
+    {
+        currentCheckpoint = c;
     }
 
     public int GetInitHealth(){ return initHealth; }

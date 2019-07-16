@@ -93,6 +93,7 @@ public class SmoothCamNew : MonoBehaviour {
                 inter.z = -10;
                 transform.position = inter;
             }
+
             else
             {
                 Vector3 targetPos = target.transform.position;
@@ -100,6 +101,11 @@ public class SmoothCamNew : MonoBehaviour {
                 this.transform.position = targetPos;
             }
         }
+    }
+
+    public void RecenterOnTarget()
+    {
+        this.transform.position = target.position;
     }
 
 
