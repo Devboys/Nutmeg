@@ -82,7 +82,6 @@ public class CharacterController : MonoBehaviour {
 
     //Component Cache
     private CharacterMover _mover;
-    private PlayerHealthHandler _healthHandler;
     private Animator _animator;
 
     #region Movement Events
@@ -98,7 +97,6 @@ public class CharacterController : MonoBehaviour {
     private void Start()
     {
         _mover = this.GetComponent<CharacterMover>();
-        _healthHandler = this.GetComponent<PlayerHealthHandler>();
         _animator = this.GetComponent<Animator>();
 
         //internal event subscribes
@@ -311,9 +309,15 @@ public class CharacterController : MonoBehaviour {
         //run-event should be called in the frame that movement goes from 0 to not-zero, as well as any frame where the player lands while moving.
         //TODO: rework sound system.
         if ((!wasRunningLastFrame || _mover.HasLanded) && horizontalMove != 0 && _mover.IsGrounded && !_mover.HasCollidedHorizontal)
-            OnRunStartEvent();
+        {
+            if (OnRunStartEvent != null)
+                OnRunStartEvent();
+        }
         else if ((wasRunningLastFrame && horizontalMove == 0 && _mover.IsGrounded) || _mover.HasLeftGround || _mover.IsGrounded && _mover.HasCollidedHorizontal)
-            OnRunEndEvent();
+        {
+            if (OnRunEndEvent != null)
+                OnRunEndEvent();
+        }
     }
     #endregion
 
@@ -366,11 +370,6 @@ public class CharacterController : MonoBehaviour {
             c.gameObject.SetActive(false);
 
             Debug.Log("pickup!");
-        }
-
-        else if (c.gameObject.CompareTag("Checkpoint"))
-        {
-            _healthHandler.SetCheckpoint(c.transform);
         }
     }
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CamBoundTriggerNew : MonoBehaviour {
+public class CamBoundTrigger : MonoBehaviour {
 
     public delegate void boundDirectionDelegate(float? v);
     [HideInInspector] public boundDirectionDelegate D_SetXMin;

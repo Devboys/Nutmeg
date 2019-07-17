@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SmoothCamNew : MonoBehaviour {
+public class SmoothCam : MonoBehaviour {
 
     [SerializeField] private Transform target;
     [SerializeField] private bool smoothMovement = true;
@@ -142,7 +142,7 @@ public class SmoothCamNew : MonoBehaviour {
         bound.transform.parent = target.transform;
 
         //delegate block responsibility
-        CamBoundTriggerNew boundScript = bound.GetComponent<CamBoundTriggerNew>();
+        CamBoundTrigger boundScript = bound.GetComponent<CamBoundTrigger>();
         boundScript.D_SetXMin = SetXMin;
         boundScript.D_SetXMax = SetXMax;
         boundScript.D_SetYMin = SetYMin;

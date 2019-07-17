@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(SmoothCamNew))]
+[CustomEditor(typeof(SmoothCam))]
 public class CameraEditor : Editor {
 
     public override void OnInspectorGUI()
     {
 
-        SmoothCamNew camController = (SmoothCamNew)target;
+        SmoothCam camController = (SmoothCam)target;
         base.OnInspectorGUI();
 
         if (GUILayout.Button("Center On Target"))
