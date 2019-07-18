@@ -57,7 +57,6 @@ public class CharacterController : MonoBehaviour {
         get { return horizontalMove < 0;  }
     }
 
-
     private bool facingRight;
 
     //Knockback variables
@@ -65,20 +64,8 @@ public class CharacterController : MonoBehaviour {
     private float currentKnockDuration;
 
     //Player state
-    [Header("State Variables (Read Only)")]
-    [SerializeField][ReadOnly] private bool isSliding;
-    [SerializeField][ReadOnly] private bool hasDoubleJumped;
-    [SerializeField][ReadOnly] private bool hasDashed;
-
-    [Header("Knockback State(Read Only")]
-    [SerializeField][ReadOnly] private bool inDashKnockback;
-    [SerializeField][ReadOnly] private bool inDamageKnockback;
-    [SerializeField][ReadOnly] private bool inWallJumpKnockback;
-
-    private bool inAnyKnockback
-    {
-        get { return inDamageKnockback || inWallJumpKnockback || inDashKnockback; }
-    }
+    [Header("State")]
+    public PlayerState state;
 
     //Component Cache
     private CharacterMover _mover;
@@ -98,6 +85,7 @@ public class CharacterController : MonoBehaviour {
     {
         _mover = this.GetComponent<CharacterMover>();
         _animator = this.GetComponent<Animator>();
+        state = new PlayerState();
 
         //internal event subscribes
         OnJumpEvent += () => { _animator.SetBool("isJumping", true); }; //this is a lambda expression subscribe.
@@ -114,7 +102,7 @@ public class CharacterController : MonoBehaviour {
         bool wasRunningLastFrame = (horizontalMove != 0);
 
         //velocity is nulled before gravity to maintain grounded status for each frame. If check is placed after gravity, unexpected jumping behaviour occurs in game.
-        if (_mover.IsGrounded && !inAnyKnockback)
+        if (_mover.IsGrounded && !state.inAnyKnockback)
             _velocity.y = 0;
 
         HandleGravity();
@@ -123,7 +111,7 @@ public class CharacterController : MonoBehaviour {
         HandleDash();
 
         //jump handled after gravity increment because jump calculation expects this.
-        if (!inDashKnockback)
+        if (!state.inDashKnockback)
         {
             HandleJump();
         }
@@ -140,8 +128,8 @@ public class CharacterController : MonoBehaviour {
 
     public void BeginDamageKnockback(Vector2 damageSourcePosition)
     {
-        inDamageKnockback= true;
-        inDashKnockback = inWallJumpKnockback = false;
+        state.inDamageKnockback= true;
+        state.inDashKnockback = state.inWallJumpKnockback = false;
 
         bool knockRight = damageSourcePosition.x < transform.position.x;
 
@@ -154,7 +142,7 @@ public class CharacterController : MonoBehaviour {
     #region Control Handlers
     private void HandleHorizontalMovement()
     {
-        if (!inAnyKnockback)
+        if (!state.inAnyKnockback)
         {
             horizontalMove = Input.GetAxisRaw("Horizontal");
 
@@ -173,7 +161,7 @@ public class CharacterController : MonoBehaviour {
 
             if (knockTimer >= currentKnockDuration)
             {
-                inDamageKnockback = inDashKnockback = inWallJumpKnockback = false;
+                state.ResetKnockbackState();
 
                 horizontalMove = Input.GetAxis("Horizontal");
 
@@ -191,11 +179,11 @@ public class CharacterController : MonoBehaviour {
 
     private void HandleDash()
     {
-        if (Input.GetAxis("Dash") != 0 && !hasDashed && dash)
+        if (Input.GetAxis("Dash") != 0 && !state.hasDashed && dash)
         {
-            hasDashed = true;
+            state.hasDashed = true;
 
-            inDashKnockback = true;
+            state.inDashKnockback = true;
             int sign = facingRight ? -1 : 1;
 
             float dashX = dashSpeed * sign;
@@ -220,10 +208,10 @@ public class CharacterController : MonoBehaviour {
             //wall jump
             else if ((_mover.IsRightOfWall || _mover.IsLeftOfWall) && wallJump)
             {
-                hasDoubleJumped = false;
-                hasDashed = false;
+                state.hasDoubleJumped = false;
+                state.hasDashed = false;
 
-                inWallJumpKnockback = true;
+                state.inWallJumpKnockback = true;
                 int sign = (_mover.IsRightOfWall) ? -1 : 1;
                 float wallJumpX = slideJumpLength * sign;
                 float wallJumpY = Mathf.Sqrt(2f * slideJumpHeight * -gravity);
@@ -234,9 +222,9 @@ public class CharacterController : MonoBehaviour {
                     OnWallJumpEvent();
             }
             //double jump
-            else if (!hasDoubleJumped && doubleJump)
+            else if (!state.hasDoubleJumped && doubleJump)
             {
-                hasDoubleJumped = true;
+                state.hasDoubleJumped = true;
                 _velocity.y = Mathf.Sqrt(2f * maxJumpHeight * -gravity);
 
                 if(OnDoubleJumpEvent != null)
@@ -253,11 +241,11 @@ public class CharacterController : MonoBehaviour {
 
     private void HandleGravity()
     {
-        float currentMaxGravity = isSliding ? maxSlideGravity : maxGravity;
+        float currentMaxGravity = state.isSliding ? maxSlideGravity : maxGravity;
 
-        if (_velocity.y > currentMaxGravity && !inDashKnockback)
+        if (_velocity.y > currentMaxGravity && !state.inDashKnockback)
         {
-            float yAccel = (isSliding && _velocity.y < 0) ? gravity * slideGravityDamping : gravity;
+            float yAccel = (state.isSliding && _velocity.y < 0) ? gravity * slideGravityDamping : gravity;
             _velocity.y += yAccel * Time.deltaTime;
         }
 
@@ -273,34 +261,34 @@ public class CharacterController : MonoBehaviour {
         {
             if ((_mover.CollidedLeft && _goingLeft) || (_mover.CollidedRight && _goingRight))
             {
-                if (!isSliding)
+                if (!state.isSliding)
                 {
                     _velocity.y = (_velocity.y > maxGravity * slideGravityDamping) ? _velocity.y : maxGravity * slideGravityDamping;
                 }
-                isSliding = true;
+                state.isSliding = true;
             }
 
-            else if (!_mover.HasCollidedHorizontal && isSliding)
+            else if (!_mover.HasCollidedHorizontal && state.isSliding)
             {
 
-                isSliding = false;
+                state.isSliding = false;
             }
         }
-        else if (isSliding)
+        else if (state.isSliding)
         {
-            isSliding = false;
+            state.isSliding = false;
         }
 
-        if(inAnyKnockback && _mover.HasCollidedHorizontal)
+        if(state.inAnyKnockback && _mover.HasCollidedHorizontal)
         {
-            inDashKnockback = false;
+            state.inDashKnockback = false;
         }
 
         if (_mover.HasLanded)
         {
-            hasDoubleJumped = false;
-            hasDashed = false;
-            isSliding = false;
+            state.hasDoubleJumped = false;
+            state.hasDashed = false;
+            state.isSliding = false;
 
             if (OnLandEvent != null)
                 OnLandEvent();
@@ -318,21 +306,16 @@ public class CharacterController : MonoBehaviour {
             if (OnRunEndEvent != null)
                 OnRunEndEvent();
         }
-    }
+    } //REWORK THIS
     #endregion
 
-    #region Internal Utility
+    #region Internal Utility - basically knockbackstate and uncontrollablestate
     private void EnterUncontrollableState(float duration, Vector2 movementVector)
     {
         currentKnockDuration = duration;
         _velocity = movementVector;
 
         knockTimer = 0;
-    }
-
-    private void ResetKnockbackState()
-    {
-        inDashKnockback = inDamageKnockback = inWallJumpKnockback = false;
     }
 
     //flips player sprite.
@@ -377,5 +360,31 @@ public class CharacterController : MonoBehaviour {
     public void ResetPlayer()
     {
         _velocity = Vector3.zero;
+    }
+
+    [System.Serializable]
+    public class PlayerState
+    {
+        public int health;
+
+        [Header("Movement State (Read Only)")]
+        [SerializeField] [ReadOnly] public bool isSliding;
+        [SerializeField] [ReadOnly] public bool hasDoubleJumped;
+        [SerializeField] [ReadOnly] public bool hasDashed;
+
+        [Header("Knockback State (Read Only")]
+        [SerializeField] [ReadOnly] public bool inDashKnockback;
+        [SerializeField] [ReadOnly] public bool inDamageKnockback;
+        [SerializeField] [ReadOnly] public bool inWallJumpKnockback;
+
+        public bool inAnyKnockback
+        {
+            get { return inDamageKnockback || inWallJumpKnockback || inDashKnockback; }
+        }
+
+        public void ResetKnockbackState()
+        {
+            inDashKnockback = inDamageKnockback = inWallJumpKnockback = false;
+        }
     }
 }
