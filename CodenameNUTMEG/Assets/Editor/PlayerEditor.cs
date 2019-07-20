@@ -11,7 +11,7 @@ public class PlayerEditor : Editor
 
         if (GUILayout.Button("Reset Player"))
         {
-            charcontroller.ResetPlayer();
+            charcontroller.Die();
         }
     }
 }

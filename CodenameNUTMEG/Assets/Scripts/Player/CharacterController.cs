@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
+using UnityEngine.Tilemaps;
 
 [RequireComponent(typeof(CharacterMover))]
 public class CharacterController : MonoBehaviour {
@@ -46,6 +47,8 @@ public class CharacterController : MonoBehaviour {
     [SerializeField] private bool wallJump;
     [SerializeField] private bool dash;
 
+    public Tilemap groundTilemap;
+
     //Player state
     [Header("Player State")]
     public PlayerState state;
@@ -73,7 +76,6 @@ public class CharacterController : MonoBehaviour {
     //Component Cache
     private CharacterMover _mover;
     private Animator _animator;
-
     #region Movement Events
     public event Action OnRunStartEvent;
     public event Action OnRunEndEvent;
@@ -89,7 +91,7 @@ public class CharacterController : MonoBehaviour {
         _mover = this.GetComponent<CharacterMover>();
         _animator = this.GetComponent<Animator>();
 
-        state = new PlayerState(initHealth);
+        state = new PlayerState(initHealth, transform.position);
 
         //internal event subscribes
         OnJumpEvent += () => { _animator.SetBool("isJumping", true); }; //this is a lambda expression subscribe.
@@ -123,19 +125,6 @@ public class CharacterController : MonoBehaviour {
 
         //update state after movement so that we can use post-movement collision state.
         HandleStateUpdate(wasRunningLastFrame);
-    }
-
-    public void BeginDamageKnockback(Vector2 damageSourcePosition)
-    {
-        state.inDamageKnockback= true;
-        state.inDashKnockback = state.inWallJumpKnockback = false;
-
-        bool knockRight = damageSourcePosition.x < transform.position.x;
-
-        float knockY = Mathf.Sqrt(2f * knockHeight * -gravity);
-        float knockX = knockRight ? knockbackSpeed : -knockbackSpeed;
-
-        EnterUncontrollableState(knockbackDuration, new Vector2(knockX, knockY));
     }
 
     #region Control Handlers
@@ -350,7 +339,36 @@ public class CharacterController : MonoBehaviour {
     public void ResetPlayer()
     {
         state.Reset();
+        Grid groundGrid = groundTilemap.layoutGrid;
+        Vector3Int cellIndex = groundGrid.WorldToCell(_mover.lastGroundedPosition);
+
+        //check neighbouring tiles so we can place the player 1 tile away from potential ledge.
+        bool leftTile = (groundTilemap.GetTile(cellIndex + new Vector3Int(-1, -1, 0))) != null;
+        bool rightTile = (groundTilemap.GetTile(cellIndex + new Vector3Int(1, -1, 0))) != null;
+
+        if (leftTile != rightTile)
+        {
+            if (rightTile) cellIndex = cellIndex + new Vector3Int(+1, 0, 0);
+            if (leftTile)  cellIndex = cellIndex + new Vector3Int(-1, 0, 0);
+        }
+
+        transform.position = groundGrid.GetCellCenterWorld(cellIndex);
+
+    }
+
+    public void Die()
+    {
+        state.Reset();
         _velocity = Vector3.zero;
+        transform.position = state.checkpoint;
+    }
+
+    public void ModHealth(int healthMod)
+    {
+        state.health += healthMod;
+
+        if (state.health <= 0)
+            Die();
     }
 
     [System.Serializable]
@@ -359,6 +377,9 @@ public class CharacterController : MonoBehaviour {
         [Header("Health")]
         [ReadOnly] public int health;
         [HideInInspector] private int initHealth;
+
+        [Header("Checkpoint")]
+        [ReadOnly] public Vector2 checkpoint;
 
         [Header("Movement State (Read Only)")]
         [ReadOnly] public bool isSliding;
@@ -375,9 +396,10 @@ public class CharacterController : MonoBehaviour {
             get { return inDamageKnockback || inWallJumpKnockback || inDashKnockback; }
         }
 
-        public PlayerState(int startHealth)
+        public PlayerState(int startHealth, Vector2 initCheckpoint)
         {
             health = initHealth = startHealth;
+            checkpoint = initCheckpoint;
         }
 
         public void ResetKnockbackState()

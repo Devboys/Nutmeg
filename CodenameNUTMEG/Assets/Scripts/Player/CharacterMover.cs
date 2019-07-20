@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 [RequireComponent(typeof(Collider2D))]
 public class CharacterMover : MonoBehaviour {
@@ -65,6 +66,7 @@ public class CharacterMover : MonoBehaviour {
         get { return wallOnLeft; }
     }
 
+    [HideInInspector] public Vector2 lastGroundedPosition;
     public void Awake()
     {
         _boxCollider = this.GetComponent<BoxCollider2D>();
@@ -197,6 +199,9 @@ public class CharacterMover : MonoBehaviour {
                 {
                     deltaMovement.y += skinWidth;
                     collisionState.below = true;
+
+                    //record last grounded position on rayhit for more accuracy than transform
+                    lastGroundedPosition = rayHit.point;
                 }
 
             }
