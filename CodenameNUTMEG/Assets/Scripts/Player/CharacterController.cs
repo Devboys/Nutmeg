@@ -343,8 +343,8 @@ public class CharacterController : MonoBehaviour {
         Vector3Int cellIndex = groundGrid.WorldToCell(_mover.lastGroundedPosition);
 
         //check neighbouring tiles so we can place the player 1 tile away from potential ledge.
-        bool leftTile = (groundTilemap.GetTile(cellIndex + new Vector3Int(-1, -1, 0))) != null;
-        bool rightTile = (groundTilemap.GetTile(cellIndex + new Vector3Int(1, -1, 0))) != null;
+        bool leftTile  = (groundTilemap.GetTile(cellIndex + new Vector3Int(-1, -1, 0))) != null && (groundTilemap.GetTile(cellIndex + new Vector3Int(-1, 0, 0))) == null;
+        bool rightTile = (groundTilemap.GetTile(cellIndex + new Vector3Int(+1, -1, 0))) != null && (groundTilemap.GetTile(cellIndex + new Vector3Int(+1, 0, 0))) == null;
 
         if (leftTile != rightTile)
         {
