@@ -586,7 +586,7 @@ PlayerSettings:
   facebookStatus: 1
   facebookXfbml: 0
   facebookFrictionlessRequests: 1
-  apiCompatibilityLevel: 2
+  apiCompatibilityLevel: 6
   cloudProjectId: 76076455-b93a-4b52-90a8-8f327b78a451
   framebufferDepthMemorylessMode: 0
   projectName: CodenameNUTMEG

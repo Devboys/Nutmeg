@@ -6,7 +6,6 @@ public class CameraEditor : Editor {
 
     public override void OnInspectorGUI()
     {
-
         SmoothCam camController = (SmoothCam)target;
         base.OnInspectorGUI();
 

@@ -8,6 +8,10 @@ using Unity.Collections;
 public class CharacterController : MonoBehaviour {
 
     #region In-Editor Variables
+
+    [Header("Health")]
+    public int initHealth;
+
     [Header("Running")]
     [SerializeField] private float moveSpeed = 8f;
 
@@ -24,7 +28,6 @@ public class CharacterController : MonoBehaviour {
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 25f;
     [SerializeField] private float dashDuration = 0.5f;
-    
 
     [Header("Wall Slide")]
     [SerializeField] [Range(0f, 1f)] private float slideGravityDamping = 0;
@@ -42,6 +45,10 @@ public class CharacterController : MonoBehaviour {
     [SerializeField] private bool doubleJump;
     [SerializeField] private bool wallJump;
     [SerializeField] private bool dash;
+
+    //Player state
+    [Header("Player State")]
+    public PlayerState state;
 
     #endregion
 
@@ -63,10 +70,6 @@ public class CharacterController : MonoBehaviour {
     private float knockTimer;
     private float currentKnockDuration;
 
-    //Player state
-    [Header("State")]
-    public PlayerState state;
-
     //Component Cache
     private CharacterMover _mover;
     private Animator _animator;
@@ -85,16 +88,12 @@ public class CharacterController : MonoBehaviour {
     {
         _mover = this.GetComponent<CharacterMover>();
         _animator = this.GetComponent<Animator>();
-        state = new PlayerState();
+
+        state = new PlayerState(initHealth);
 
         //internal event subscribes
         OnJumpEvent += () => { _animator.SetBool("isJumping", true); }; //this is a lambda expression subscribe.
         OnLandEvent += () => { _animator.SetBool("isJumping", false); };
-    }
-
-    private void doThings()
-    {
-        _animator.SetBool("isJumping", true);
     }
 
     private void Update()
@@ -202,8 +201,7 @@ public class CharacterController : MonoBehaviour {
                 //formula derived from vf^2 = vi^2 + 2ad
                 _velocity.y = Mathf.Sqrt(2f * maxJumpHeight * -gravity);
 
-                if (OnJumpEvent != null)
-                    OnJumpEvent();
+                OnJumpEvent?.Invoke();
             }
             //wall jump
             else if ((_mover.IsRightOfWall || _mover.IsLeftOfWall) && wallJump)
@@ -218,8 +216,7 @@ public class CharacterController : MonoBehaviour {
 
                 EnterUncontrollableState(wallJumpDuration, new Vector2(wallJumpX, wallJumpY));
 
-                if(OnWallJumpEvent != null)
-                    OnWallJumpEvent();
+                OnWallJumpEvent?.Invoke();
             }
             //double jump
             else if (!state.hasDoubleJumped && doubleJump)
@@ -227,8 +224,7 @@ public class CharacterController : MonoBehaviour {
                 state.hasDoubleJumped = true;
                 _velocity.y = Mathf.Sqrt(2f * maxJumpHeight * -gravity);
 
-                if(OnDoubleJumpEvent != null)
-                    OnDoubleJumpEvent();
+                OnDoubleJumpEvent?.Invoke();
             }
         }
         
@@ -290,21 +286,18 @@ public class CharacterController : MonoBehaviour {
             state.hasDashed = false;
             state.isSliding = false;
 
-            if (OnLandEvent != null)
-                OnLandEvent();
+            OnLandEvent?.Invoke();
         }
 
         //run-event should be called in the frame that movement goes from 0 to not-zero, as well as any frame where the player lands while moving.
         //TODO: rework sound system.
         if ((!wasRunningLastFrame || _mover.HasLanded) && horizontalMove != 0 && _mover.IsGrounded && !_mover.HasCollidedHorizontal)
         {
-            if (OnRunStartEvent != null)
-                OnRunStartEvent();
+            OnRunStartEvent?.Invoke();
         }
         else if ((wasRunningLastFrame && horizontalMove == 0 && _mover.IsGrounded) || _mover.HasLeftGround || _mover.IsGrounded && _mover.HasCollidedHorizontal)
         {
-            if (OnRunEndEvent != null)
-                OnRunEndEvent();
+            OnRunEndEvent?.Invoke();
         }
     } //REWORK THIS
     #endregion
@@ -351,40 +344,52 @@ public class CharacterController : MonoBehaviour {
             }
 
             c.gameObject.SetActive(false);
-
-            Debug.Log("pickup!");
         }
     }
 
-    //TODO: Finish
     public void ResetPlayer()
     {
+        state.Reset();
         _velocity = Vector3.zero;
     }
 
     [System.Serializable]
     public class PlayerState
     {
-        public int health;
+        [Header("Health")]
+        [ReadOnly] public int health;
+        [HideInInspector] private int initHealth;
 
         [Header("Movement State (Read Only)")]
-        [SerializeField] [ReadOnly] public bool isSliding;
-        [SerializeField] [ReadOnly] public bool hasDoubleJumped;
-        [SerializeField] [ReadOnly] public bool hasDashed;
+        [ReadOnly] public bool isSliding;
+        [ReadOnly] public bool hasDoubleJumped;
+        [ReadOnly] public bool hasDashed;
 
         [Header("Knockback State (Read Only")]
-        [SerializeField] [ReadOnly] public bool inDashKnockback;
-        [SerializeField] [ReadOnly] public bool inDamageKnockback;
-        [SerializeField] [ReadOnly] public bool inWallJumpKnockback;
+        [ReadOnly] public bool inDashKnockback;
+        [ReadOnly] public bool inDamageKnockback;
+        [ReadOnly] public bool inWallJumpKnockback;
 
         public bool inAnyKnockback
         {
             get { return inDamageKnockback || inWallJumpKnockback || inDashKnockback; }
         }
 
+        public PlayerState(int startHealth)
+        {
+            health = initHealth = startHealth;
+        }
+
         public void ResetKnockbackState()
         {
             inDashKnockback = inDamageKnockback = inWallJumpKnockback = false;
+        }
+
+        public void Reset()
+        {
+            ResetKnockbackState();
+            isSliding = hasDoubleJumped = hasDashed = false;
+            health = initHealth;
         }
     }
 }
