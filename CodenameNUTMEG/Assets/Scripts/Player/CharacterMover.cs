@@ -27,6 +27,7 @@ public class CharacterMover : MonoBehaviour {
     [ReadOnly][SerializeField] private bool wallOnRight;
     [ReadOnly][SerializeField] private bool wallOnLeft;
 
+    #region Read only properties
     //collision state & collisionstate read-only properties.
     [HideInInspector] private CharacterCollisionState2D collisionState;
     [HideInInspector] public bool IsGrounded
@@ -65,8 +66,10 @@ public class CharacterMover : MonoBehaviour {
     {
         get { return wallOnLeft; }
     }
+    #endregion
 
     [HideInInspector] public Vector2 lastGroundedPosition;
+
     public void Awake()
     {
         _boxCollider = this.GetComponent<BoxCollider2D>();

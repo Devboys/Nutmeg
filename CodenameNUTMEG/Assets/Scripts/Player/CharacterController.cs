@@ -43,9 +43,9 @@ public class CharacterController : MonoBehaviour {
     [SerializeField] private float knockbackSpeed = 1f;
 
     [Header("Abilities")]
-    [SerializeField] private bool doubleJump;
-    [SerializeField] private bool wallJump;
-    [SerializeField] private bool dash;
+    [SerializeField] private bool doubleJumpAcquired;
+    [SerializeField] private bool wallJumpAcquired;
+    [SerializeField] private bool dashAcquired;
 
     public Tilemap groundTilemap;
 
@@ -167,7 +167,7 @@ public class CharacterController : MonoBehaviour {
 
     private void HandleDash()
     {
-        if (Input.GetAxis("Dash") != 0 && !state.hasDashed && dash)
+        if (Input.GetAxis("Dash") != 0 && !state.hasDashed && dashAcquired)
         {
             state.hasDashed = true;
 
@@ -193,7 +193,7 @@ public class CharacterController : MonoBehaviour {
                 OnJumpEvent?.Invoke();
             }
             //wall jump
-            else if ((_mover.IsRightOfWall || _mover.IsLeftOfWall) && wallJump)
+            else if ((_mover.IsRightOfWall || _mover.IsLeftOfWall) && wallJumpAcquired)
             {
                 state.hasDoubleJumped = false;
                 state.hasDashed = false;
@@ -208,7 +208,7 @@ public class CharacterController : MonoBehaviour {
                 OnWallJumpEvent?.Invoke();
             }
             //double jump
-            else if (!state.hasDoubleJumped && doubleJump)
+            else if (!state.hasDoubleJumped && doubleJumpAcquired)
             {
                 state.hasDoubleJumped = true;
                 _velocity.y = Mathf.Sqrt(2f * maxJumpHeight * -gravity);
@@ -322,13 +322,13 @@ public class CharacterController : MonoBehaviour {
             switch (powerUp)
             {
                 case "Double Jump":
-                    doubleJump = true;
+                    doubleJumpAcquired = true;
                     break;
                 case "Wall Jump":
-                    wallJump = true;
+                    wallJumpAcquired = true;
                     break;
                 case "Dash":
-                    dash = true;
+                    dashAcquired = true;
                     break;
             }
 
