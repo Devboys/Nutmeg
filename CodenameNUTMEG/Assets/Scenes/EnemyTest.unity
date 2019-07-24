@@ -451,9 +451,9 @@ GameObject:
   - component: {fileID: 1654083802}
   - component: {fileID: 1654083801}
   - component: {fileID: 1654083800}
+  - component: {fileID: 1654083799}
   - component: {fileID: 1654083804}
   - component: {fileID: 1654083803}
-  - component: {fileID: 1654083799}
   m_Layer: 0
   m_Name: Roamer
   m_TagString: Untagged
@@ -564,7 +564,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1654083798}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12.5, y: -5.593, z: 0}
+  m_LocalPosition: {x: -12.54, y: -5.593, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -587,7 +587,6 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4096
-  groundGrid: {fileID: 1714847297}
   groundTilemap: {fileID: 1740879429}
   goingRight: 1
   goingHorizontal: 1
