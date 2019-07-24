@@ -27,8 +27,9 @@ public class CharacterController : MonoBehaviour {
     [SerializeField] private float minJumpHeight = 0.5f;
 
     [Header("Dash")]
-    [SerializeField] private float dashSpeed = 25f;
-    [SerializeField] private float dashDuration = 0.5f;
+    [SerializeField] private float dashSpeed = 15f;
+    [SerializeField] private float dashDuration = 0.2f;
+    [SerializeField] private float dashCooldown = 0.4f;
 
     [Header("Wall Slide")]
     [SerializeField] [Range(0f, 1f)] private float slideGravityDamping = 0;
@@ -69,13 +70,10 @@ public class CharacterController : MonoBehaviour {
 
     private bool facingRight;
 
-    //Knockback variables
-    private float knockTimer;
-    private float currentKnockDuration;
-
     //Component Cache
     private CharacterMover _mover;
     private Animator _animator;
+
     #region Movement Events
     public event Action OnRunStartEvent;
     public event Action OnRunEndEvent;
@@ -103,19 +101,14 @@ public class CharacterController : MonoBehaviour {
         bool wasRunningLastFrame = (horizontalMove != 0);
 
         //velocity is nulled before gravity to maintain grounded status for each frame. If check is placed after gravity, unexpected jumping behaviour occurs in game.
-        if (_mover.IsGrounded && !state.inAnyKnockback)
+        if (_mover.IsGrounded && !state.isReeling)
             _velocity.y = 0;
 
         HandleGravity();
         HandleHorizontalMovement();
-
         HandleDash();
-
-        //jump handled after gravity increment because jump calculation expects this.
-        if (!state.inDashKnockback)
-        {
-            HandleJump();
-        }
+        HandleJump(); //jump handled after gravity increment because jump calculation expects this.
+        TickTimers(Time.deltaTime);
 
         //pass the velocity, adjusted for deltaTime, to the mover for collision detection and other physics interactions.
         _mover.Move(_velocity * Time.deltaTime);
@@ -130,7 +123,7 @@ public class CharacterController : MonoBehaviour {
     #region Control Handlers
     private void HandleHorizontalMovement()
     {
-        if (!state.inAnyKnockback)
+        if (!state.isReeling)
         {
             horizontalMove = Input.GetAxisRaw("Horizontal");
 
@@ -143,46 +136,30 @@ public class CharacterController : MonoBehaviour {
             float dampingFactor = _mover.IsGrounded ? groundDamping : inAirDamping;
             _velocity.x = Mathf.Lerp(_velocity.x, horizontalMove * moveSpeed, Time.deltaTime * dampingFactor);
         }
-        else
-        {
-            knockTimer += Time.deltaTime;
-
-            if (knockTimer >= currentKnockDuration)
-            {
-                state.ResetKnockbackState();
-
-                horizontalMove = Input.GetAxis("Horizontal");
-
-                if(Math.Sign(horizontalMove) != Math.Sign(_velocity.x))
-                {
-                    _velocity.x = 0;
-                }
-                else
-                {
-                    _velocity.x = moveSpeed * horizontalMove;
-                }
-            }
-        }
     }
 
     private void HandleDash()
     {
-        if (Input.GetAxis("Dash") != 0 && !state.hasDashed && dashAcquired)
+        if (!state.isReeling)
         {
-            state.hasDashed = true;
+            if (Input.GetAxis("Dash") != 0 && !state.hasDashed && state.dashCooldownTimer <= 0 && dashAcquired)
+            {
+                state.hasDashed = true;
 
-            state.inDashKnockback = true;
-            int sign = facingRight ? -1 : 1;
+                int directionSign = facingRight ? -1 : 1;
+                float dashX = dashSpeed * directionSign;
+                float dashY = 0;
 
-            float dashX = dashSpeed * sign;
-            float dashY = 0;
-            EnterUncontrollableState(dashDuration, new Vector2(dashX, dashY));
+                state.dashCooldownTimer = dashCooldown;
+
+                EnterReelingState(dashDuration, new Vector2(dashX, dashY), true);
+            }
         }
     }
 
     private void HandleJump()
     {
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && !state.isReeling)
         {
             //standard jump
             if (_mover.IsGrounded)
@@ -195,15 +172,13 @@ public class CharacterController : MonoBehaviour {
             //wall jump
             else if ((_mover.IsRightOfWall || _mover.IsLeftOfWall) && wallJumpAcquired)
             {
-                state.hasDoubleJumped = false;
-                state.hasDashed = false;
+                state.ResetAbilityUsage();
 
-                state.inWallJumpKnockback = true;
                 int sign = (_mover.IsRightOfWall) ? -1 : 1;
                 float wallJumpX = slideJumpLength * sign;
                 float wallJumpY = Mathf.Sqrt(2f * slideJumpHeight * -gravity);
 
-                EnterUncontrollableState(wallJumpDuration, new Vector2(wallJumpX, wallJumpY));
+                EnterReelingState(wallJumpDuration, new Vector2(wallJumpX, wallJumpY), false);
 
                 OnWallJumpEvent?.Invoke();
             }
@@ -228,7 +203,7 @@ public class CharacterController : MonoBehaviour {
     {
         float currentMaxGravity = state.isSliding ? maxSlideGravity : maxGravity;
 
-        if (_velocity.y > currentMaxGravity && !state.inDashKnockback)
+        if (_velocity.y > currentMaxGravity && !state.gravityDisabled)
         {
             float yAccel = (state.isSliding && _velocity.y < 0) ? gravity * slideGravityDamping : gravity;
             _velocity.y += yAccel * Time.deltaTime;
@@ -255,7 +230,6 @@ public class CharacterController : MonoBehaviour {
 
             else if (!_mover.HasCollidedHorizontal && state.isSliding)
             {
-
                 state.isSliding = false;
             }
         }
@@ -264,15 +238,15 @@ public class CharacterController : MonoBehaviour {
             state.isSliding = false;
         }
 
-        if(state.inAnyKnockback && _mover.HasCollidedHorizontal)
+        if(state.isReeling && _mover.HasCollidedHorizontal)
         {
-            state.inDashKnockback = false;
+            state.isReeling = false;
+            state.gravityDisabled = false;
         }
 
         if (_mover.HasLanded)
         {
-            state.hasDoubleJumped = false;
-            state.hasDashed = false;
+            state.ResetAbilityUsage();
             state.isSliding = false;
 
             OnLandEvent?.Invoke();
@@ -288,16 +262,59 @@ public class CharacterController : MonoBehaviour {
         {
             OnRunEndEvent?.Invoke();
         }
-    } //REWORK THIS
+    }
     #endregion
 
-    #region Internal Utility - basically knockbackstate and uncontrollablestate
-    private void EnterUncontrollableState(float duration, Vector2 movementVector)
+    #region Timer methods
+    private void TickTimers(float tickTime)
     {
-        currentKnockDuration = duration;
-        _velocity = movementVector;
+        TickReelTimer(tickTime);
+        TickDashCoolDown(tickTime);
+    }
 
-        knockTimer = 0;
+    private void TickReelTimer(float tickTime)
+    {
+        if (state.isReeling)
+        {
+            state.reelTimer -= tickTime;
+
+            if (state.reelTimer <= 0)
+            {
+                state.ResetKnockbackState();
+
+                horizontalMove = Input.GetAxis("Horizontal");
+
+                if (Math.Sign(horizontalMove) != Math.Sign(_velocity.x))
+                    _velocity.x = 0;
+
+                else
+                    _velocity.x = moveSpeed * horizontalMove;
+            }
+        }
+    }
+
+    private void TickDashCoolDown(float tickTime)
+    {
+        if(state.dashCooldownTimer > 0)
+        {
+            state.dashCooldownTimer -= tickTime;
+        }
+    }
+    #endregion
+
+    private void EnterReelingState(float duration, Vector2 movementVector, bool disableGravity)
+    {
+        state.isReeling = true;
+        state.gravityDisabled = disableGravity;
+
+        state.reelTimer = duration;
+        _velocity = movementVector;
+    }
+
+    private void StartDamageKnockback(Vector2 direction)
+    {
+        //Vector2 knockbackVector = new Vector2(knockbackSpeed, Mathf.Sqrt(2f * knockHeight * -gravity));
+        EnterReelingState(knockbackDuration, direction, false);
     }
 
     //flips player sprite.
@@ -311,7 +328,6 @@ public class CharacterController : MonoBehaviour {
         theScale.x *= -1;
         transform.localScale = theScale;
     }
-    #endregion
 
     private void OnTriggerEnter2D(Collider2D c)
     {
@@ -338,7 +354,7 @@ public class CharacterController : MonoBehaviour {
 
     public void ResetPlayer()
     {
-        state.Reset();
+        state.ResetAll();
         Grid groundGrid = groundTilemap.layoutGrid;
         Vector3Int cellIndex = groundGrid.WorldToCell(_mover.lastGroundedPosition);
 
@@ -353,22 +369,31 @@ public class CharacterController : MonoBehaviour {
         }
 
         transform.position = groundGrid.GetCellCenterWorld(cellIndex);
-
     }
 
     public void Die()
     {
-        state.Reset();
+        state.ResetAll(true);
         _velocity = Vector3.zero;
         transform.position = state.checkpoint;
+
     }
 
-    public void ModHealth(int healthMod)
+    public void ModHealth(int healthMod, Vector2? origin = null)
     {
         state.health += healthMod;
 
         if (state.health <= 0)
             Die();
+
+        //we assume that only damage that causes knockback has an origin.
+        else if (origin.HasValue)
+        {
+            Vector2 distance = (Vector3)origin - transform.position;
+            Vector2 direction = distance / distance.magnitude;
+            Vector2 knockbackVector = new Vector2(-knockbackSpeed * Mathf.Sign(direction.x), Mathf.Sqrt(2f * knockHeight * -gravity));
+            StartDamageKnockback(knockbackVector);
+        }
     }
 
     [System.Serializable]
@@ -386,15 +411,14 @@ public class CharacterController : MonoBehaviour {
         [ReadOnly] public bool hasDoubleJumped;
         [ReadOnly] public bool hasDashed;
 
-        [Header("Knockback State (Read Only")]
-        [ReadOnly] public bool inDashKnockback;
-        [ReadOnly] public bool inDamageKnockback;
-        [ReadOnly] public bool inWallJumpKnockback;
+        [Header("Reeling State (Read Only")]
+        [ReadOnly] public bool isReeling;
+        [ReadOnly] public bool gravityDisabled;
 
-        public bool inAnyKnockback
-        {
-            get { return inDamageKnockback || inWallJumpKnockback || inDashKnockback; }
-        }
+        //Timers
+        [HideInInspector] public float reelTimer;
+        [HideInInspector] public float dashCooldownTimer;
+        
 
         public PlayerState(int startHealth, Vector2 initCheckpoint)
         {
@@ -402,16 +426,31 @@ public class CharacterController : MonoBehaviour {
             checkpoint = initCheckpoint;
         }
 
+        #region resets
         public void ResetKnockbackState()
         {
-            inDashKnockback = inDamageKnockback = inWallJumpKnockback = false;
+            isReeling = gravityDisabled = false;
         }
 
-        public void Reset()
+        public void ResetAbilityUsage()
+        {
+            hasDashed = hasDoubleJumped = false;
+        }
+
+        public void ResetTimers()
+        {
+            reelTimer = dashCooldownTimer = 0;
+        }
+
+        public void ResetAll(bool resetHealth = false)
         {
             ResetKnockbackState();
-            isSliding = hasDoubleJumped = hasDashed = false;
-            health = initHealth;
+            ResetAbilityUsage();
+            ResetTimers();
+
+            isSliding = false;
+            if(resetHealth) health = initHealth;
         }
+        #endregion
     }
 }

@@ -10,8 +10,8 @@ public class BasicSpikeScript : MonoBehaviour
 
         if(target != null)
         {
-            target.ModHealth(-1);
             target.ResetPlayer();
+            target.ModHealth(-1);
         }
 
     }
