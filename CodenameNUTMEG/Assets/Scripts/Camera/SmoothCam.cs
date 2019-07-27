@@ -105,7 +105,10 @@ public class SmoothCam : MonoBehaviour {
 
     public void RecenterOnTarget()
     {
-        this.transform.position = target.position;
+        Vector3 pos = transform.position;
+        pos.x = target.position.x;
+        pos.y = target.position.y;
+        transform.position = pos;
     }
 
 
